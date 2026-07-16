@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>KrupstockSys · V21 实盘看板</title>
+<style>
+  :root{--bg:#0e1116;--card:#171c24;--card2:#1f2630;--line:#2a323d;--txt:#e6e9ef;
+        --dim:#8b95a3;--grn:#50c878;--red:#e65a5a;--ylw:#ebbf5a;--blue:#5aa0eb;--acc:#5ad1d6;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{display:flex;flex-direction:column;height:100dvh;overflow:hidden;
+    background:var(--bg);color:var(--txt);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+  .top{flex:0 0 auto;background:linear-gradient(180deg,#11161d,#0e1116);
+    padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+  .top h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.3px}
+  .top .sub{color:var(--dim);font-size:12px;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;border:1px solid var(--line)}
+  .badge.ok{color:var(--grn);border-color:#2f5e42;background:#13251a}
+  .badge.warn{color:var(--ylw);border-color:#5e4f2f;background:#251f13}
+  .main{flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch}
+  .view{display:none;padding:14px 14px 16px}
+  .view.on{display:block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+  .card h2{margin:0 0 10px;font-size:14px;color:var(--dim);font-weight:600;
+    display:flex;justify-content:space-between;align-items:center}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed #20262f;font-size:14px}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--dim)} .kv .v{text-align:right;font-weight:600}
+  .search{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card2);color:var(--txt);font-size:16px;margin-bottom:12px}
+  .cols{display:grid;grid-template-columns:1fr;gap:12px}
+  .tier{border-radius:14px;padding:12px;border:1px solid var(--line)}
+  .tier.core{background:#15241c;border-color:#2f5e42}
+  .tier.swing{background:#15202b;border-color:#2f4f5e}
+  .tier.avoid{background:#2a1717;border-color:#5e2f2f}
+  .tier h3{margin:0 0 8px;font-size:13px;display:flex;justify-content:space-between}
+  .tier .cnt{color:var(--dim);font-weight:400}
+  .row{display:flex;justify-content:space-between;padding:9px 8px;border-radius:9px;
+    background:var(--card2);margin-bottom:6px;font-size:15px;align-items:center}
+  .row .code{font-weight:700;letter-spacing:.4px}
+  .row .sc{font-variant-numeric:tabular-nums;color:var(--dim)}
+  .row.pos .sc{color:var(--grn)} .row.neg .sc{color:var(--red)}
+  .rl{display:flex;gap:6px;margin-right:auto;min-width:0}
+  .rl .nm{color:var(--txt);font-size:14px;max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .pr{font-variant-numeric:tabular-nums;margin-left:auto;margin-right:8px;min-width:50px;text-align:right;color:var(--dim)}
+  .row .ch{font-variant-numeric:tabular-nums;min-width:60px;text-align:right;font-weight:400}
+  .row .ch.up{color:var(--red)} .row .ch.dn{color:var(--grn)}
+  .fab{position:fixed;right:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:20;
+    background:var(--acc);color:#062224;border:none;border-radius:999px;padding:14px 20px;
+    font-size:15px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+  .fab:disabled{opacity:.5}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:9px 6px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:600}
+  .tag{font-size:10px;padding:0 6px;border-radius:6px;background:#2f4f5e;color:#bfe;margin-left:4px}
+  .empty{color:var(--dim);text-align:center;padding:30px}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid #062224;border-top-color:transparent;
+    border-radius:50%;animation:r .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes r{to{transform:rotate(360deg)}}
+  .foot{flex:0 0 auto;height:56px;padding-bottom:env(safe-area-inset-bottom);background:var(--bg);
+    border-top:1px solid var(--line);display:flex}
+  .foot .tab{flex:1;text-align:center;padding:8px 2px;color:var(--dim);font-size:12px}
+  .foot .tab.on{color:var(--acc)}
+  .foot .tab .ic{font-size:18px;display:block;line-height:1.3}
+  .note{color:var(--dim);font-size:12px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>KrupstockSys · V21 实盘看板</h1>
+  <div class="sub">
+    <span id="auth" class="badge">数据…</span>
+    <span id="upd" style="color:var(--dim)"></span>
+  </div>
+</div>
+<div class="main">
+  <div class="view on" id="v_sig">
+    <input class="search" id="q" placeholder="搜索代码，如 SH600000">
+    <div class="cols">
+      <div class="tier core"><h3>主仓 buy_core <span class="cnt" id="c_core"></span></h3><div id="core"></div></div>
+      <div class="tier swing"><h3>波段 buy_swing <span class="cnt" id="c_swing"></span></h3><div id="swing"></div></div>
+      <div class="tier avoid"><h3>回避 avoid <span class="cnt" id="c_avoid"></span></h3><div id="avoid"></div></div>
+    </div>
+    <div class="note">静态快照 · 自动实时流需云端服务版（web_dashboard.py）</div>
+  </div>
+  <div class="view" id="v_train"><div class="card" id="train_card"><div class="empty">加载中…</div></div></div>
+  <div class="view" id="v_model"><div class="card" id="model_card"><div class="empty">加载中…</div></div></div>
+  <div class="view" id="v_perf"><div class="card"><h2>纯多头绩效（验证窗口）</h2><div id="perf"></div></div></div>
+</div>
+<button class="fab" id="refresh">↻ 刷新信号</button>
+<div class="foot" id="foot">
+  <div class="tab on" data-v="sig"><span class="ic">📡</span>信号</div>
+  <div class="tab" data-v="train"><span class="ic">📈</span>训练</div>
+  <div class="tab" data-v="model"><span class="ic">🧠</span>模型</div>
+  <div class="tab" data-v="perf"><span class="ic">🏆</span>绩效</div>
+</div>
+<script>
+const INIT={"signal": {"time": "2026-07-16T19:26:10.544774", "model": "v21_industry_realSW_PROD_20260716.pt", "dp": 2738, "mode": "broad", "n_universe": 2353, "note": "纯多头/主仓+波段，不做融资融券不做空；avoid 仅作剔除参考", "buy_core": [{"code": "SH600361", "score": 0.1647014319896698}, {"code": "SH600531", "score": 0.14808082580566406}, {"code": "SZ002578", "score": 0.14732228219509125}, {"code": "SZ000831", "score": 0.144672691822052}, {"code": "SZ000060", "score": 0.14140823483467102}, {"code": "SH601168", "score": 0.14131207764148712}, {"code": "SZ300014", "score": 0.14051803946495056}, {"code": "SZ002149", "score": 0.13897228240966797}, {"code": "SH600456", "score": 0.13736748695373535}, {"code": "SZ000603", "score": 0.13707606494426727}, {"code": "SZ002237", "score": 0.13609212636947632}, {"code": "SZ002554", "score": 0.13592427968978882}, {"code": "SH601600", "score": 0.13579882681369781}, {"code": "SZ002171", "score": 0.13397341966629028}, {"code": "SH600478", "score": 0.13353471457958221}, {"code": "SZ002428", "score": 0.13324105739593506}, {"code": "SZ000758", "score": 0.13266432285308838}, {"code": "SZ002466", "score": 0.1326187551021576}, {"code": "SH601700", "score": 0.13192607462406158}, {"code": "SZ002501", "score": 0.1313813030719757}, {"code": "SH600301", "score": 0.13136903941631317}, {"code": "SZ002295", "score": 0.13039648532867432}, {"code": "SH600259", "score": 0.13014927506446838}, {"code": "SH601958", "score": 0.12972065806388855}, {"code": "SH600549", "score": 0.1295851469039917}, {"code": "SZ000970", "score": 0.12727108597755432}, {"code": "SH600489", "score": 0.12705524265766144}, {"code": "SH600111", "score": 0.12669040262699127}, {"code": "SZ000657", "score": 0.12610337138175964}, {"code": "SH600392", "score": 0.12538713216781616}, {"code": "SH600416", "score": 0.12347476184368134}, {"code": "SZ000426", "score": 0.12208616733551025}, {"code": "SH600459", "score": 0.12136578559875488}, {"code": "SZ002476", "score": 0.12089435011148453}, {"code": "SH600768", "score": 0.12048572301864624}, {"code": "SH600869", "score": 0.12039508670568466}, {"code": "SZ002309", "score": 0.12031865864992142}, {"code": "SZ002192", "score": 0.11883655935525894}, {"code": "SZ002579", "score": 0.11837746948003769}, {"code": "SZ000688", "score": 0.11819108575582504}, {"code": "SZ002709", "score": 0.11806751042604446}, {"code": "SZ000751", "score": 0.11756939440965652}, {"code": "SZ002384", "score": 0.11659545451402664}, {"code": "SZ300057", "score": 0.1160285547375679}, {"code": "SH600219", "score": 0.11438395828008652}, {"code": "SZ000630", "score": 0.11422929912805557}, {"code": "SZ000809", "score": 0.11394120007753372}, {"code": "SZ300139", "score": 0.11387921124696732}, {"code": "SZ002090", "score": 0.11387699097394943}, {"code": "SH600067", "score": 0.11372129619121552}, {"code": "SZ002540", "score": 0.1131698414683342}, {"code": "SZ002203", "score": 0.11300377547740936}, {"code": "SH600363", "score": 0.11292474716901779}, {"code": "SH600563", "score": 0.11251075565814972}, {"code": "SZ002498", "score": 0.11204710602760315}, {"code": "SH600595", "score": 0.1113860085606575}, {"code": "SZ002169", "score": 0.11133509874343872}, {"code": "SH600711", "score": 0.11131417006254196}, {"code": "SZ300062", "score": 0.11129946261644363}, {"code": "SZ002017", "score": 0.11129695177078247}, {"code": "SZ300301", "score": 0.11052533239126205}, {"code": "SZ002160", "score": 0.11014163494110107}, {"code": "SZ300185", "score": 0.10995399951934814}, {"code": "SZ002606", "score": 0.10982707887887955}, {"code": "SZ002074", "score": 0.10891029238700867}, {"code": "SZ002532", "score": 0.10818188637495041}, {"code": "SZ002451", "score": 0.10749662667512894}, {"code": "SZ000509", "score": 0.10702303797006607}, {"code": "SZ000612", "score": 0.10551730543375015}, {"code": "SZ002207", "score": 0.10516969859600067}, {"code": "SH600366", "score": 0.10515240579843521}, {"code": "SH600547", "score": 0.1043301671743393}, {"code": "SZ002202", "score": 0.10406173020601273}, {"code": "SZ002155", "score": 0.10353758931159973}, {"code": "SH601016", "score": 0.103511743247509}, {"code": "SZ002379", "score": 0.10278303176164627}, {"code": "SZ002114", "score": 0.10254812985658646}, {"code": "SH603993", "score": 0.1019708588719368}, {"code": "SZ002463", "score": 0.10166379064321518}, {"code": "SZ002479", "score": 0.10142069309949875}, {"code": "SZ002576", "score": 0.10137372463941574}, {"code": "SZ002121", "score": 0.10128802806138992}, {"code": "SH600961", "score": 0.10065294057130814}, {"code": "SZ300080", "score": 0.10055097192525864}, {"code": "SH600490", "score": 0.10051697492599487}, {"code": "SZ000656", "score": 0.10046561807394028}, {"code": "SZ000975", "score": 0.10022067278623581}, {"code": "SZ000407", "score": 0.10021783411502838}, {"code": "SZ002460", "score": 0.10004382580518723}, {"code": "SZ300127", "score": 0.09993188083171844}, {"code": "SZ002480", "score": 0.0995253473520279}, {"code": "SZ002692", "score": 0.09907791763544083}, {"code": "SH600339", "score": 0.09906534105539322}, {"code": "SZ002377", "score": 0.0989120677113533}, {"code": "SZ000962", "score": 0.0988936647772789}, {"code": "SZ002005", "score": 0.09876108914613724}, {"code": "SH600497", "score": 0.09874547272920609}, {"code": "SZ300037", "score": 0.09851644933223724}, {"code": "SH600362", "score": 0.0984412431716919}, {"code": "SH600777", "score": 0.09830538183450699}, {"code": "SH600525", "score": 0.09822433441877365}, {"code": "SZ000703", "score": 0.09785149246454239}, {"code": "SH600136", "score": 0.09778424352407455}, {"code": "SZ002424", "score": 0.097774438560009}, {"code": "SZ000301", "score": 0.09769480675458908}, {"code": "SZ300224", "score": 0.09756359457969666}, {"code": "SH600875", "score": 0.097327321767807}, {"code": "SZ300018", "score": 0.09722543507814407}, {"code": "SZ000795", "score": 0.09693283587694168}, {"code": "SH600110", "score": 0.09690087288618088}, {"code": "SH600241", "score": 0.0968230664730072}, {"code": "SZ000531", "score": 0.0967678353190422}, {"code": "SZ300376", "score": 0.09656871110200882}, {"code": "SH600072", "score": 0.09627589583396912}, {"code": "SH600847", "score": 0.0962568148970604}, {"code": "SZ002109", "score": 0.09615747630596161}, {"code": "SH600477", "score": 0.09614139050245285}], "buy_swing": [{"code": "SH600152", "score": 0.09607458859682083}, {"code": "SH600207", "score": 0.09606461971998215}, {"code": "SH601877", "score": 0.09592705219984055}, {"code": "SZ002168", "score": 0.09581729769706726}, {"code": "SZ300073", "score": 0.0957505851984024}, {"code": "SH601218", "score": 0.09565568715333939}, {"code": "SH600988", "score": 0.09491551667451859}, {"code": "SH600268", "score": 0.0948978140950203}, {"code": "SH600212", "score": 0.09468133002519608}, {"code": "SZ000631", "score": 0.09454815089702606}, {"code": "SZ002167", "score": 0.09428911656141281}, {"code": "SZ002217", "score": 0.09412803500890732}, {"code": "SH600426", "score": 0.09412781149148941}, {"code": "SZ000010", "score": 0.09409791976213455}, {"code": "SZ000506", "score": 0.09409352391958237}, {"code": "SZ000969", "score": 0.09385185688734055}, {"code": "SZ300053", "score": 0.09369709342718124}, {"code": "SH600376", "score": 0.09319236874580383}, {"code": "SH600884", "score": 0.09311410784721375}, {"code": "SZ300136", "score": 0.09305982291698456}, {"code": "SH600433", "score": 0.09239604324102402}, {"code": "SZ002546", "score": 0.09192757308483124}, {"code": "SZ000762", "score": 0.09142854809761047}, {"code": "SZ000523", "score": 0.09074628353118896}, {"code": "SZ000889", "score": 0.0906464010477066}, {"code": "SH600615", "score": 0.09033165127038956}, {"code": "SH600871", "score": 0.09031086415052414}, {"code": "SH600467", "score": 0.08992812782526016}, {"code": "SH603606", "score": 0.08977819234132767}, {"code": "SZ002321", "score": 0.08976969867944717}, {"code": "SZ002350", "score": 0.08959249407052994}, {"code": "SZ002170", "score": 0.08906339854001999}, {"code": "SZ002134", "score": 0.08906134217977524}, {"code": "SZ002631", "score": 0.08893431723117828}, {"code": "SZ002524", "score": 0.08815035223960876}, {"code": "SZ000070", "score": 0.08810620754957199}, {"code": "SH600802", "score": 0.08797701448202133}, {"code": "SH600496", "score": 0.0877990648150444}, {"code": "SZ300163", "score": 0.08750055730342865}, {"code": "SZ000516", "score": 0.08745931833982468}, {"code": "SH601677", "score": 0.08734162151813507}, {"code": "SH600425", "score": 0.08729805052280426}, {"code": "SZ000050", "score": 0.08679560571908951}, {"code": "SH601311", "score": 0.08670496195554733}, {"code": "SH601011", "score": 0.08626464009284973}, {"code": "SZ000922", "score": 0.08623009920120239}, {"code": "SZ002487", "score": 0.08615195006132126}, {"code": "SZ002056", "score": 0.08608929812908173}, {"code": "SH601991", "score": 0.08603622019290924}, {"code": "SZ000571", "score": 0.08581238240003586}, {"code": "SH600583", "score": 0.08569858968257904}, {"code": "SZ300218", "score": 0.08558016270399094}, {"code": "SH600157", "score": 0.08538059890270233}, {"code": "SH600438", "score": 0.08526778966188431}, {"code": "SZ000669", "score": 0.08493606001138687}, {"code": "SZ002533", "score": 0.0848277136683464}, {"code": "SH600734", "score": 0.08476913720369339}, {"code": "SZ000807", "score": 0.08452901244163513}, {"code": "SH600338", "score": 0.08438055962324142}, {"code": "SZ000960", "score": 0.08404365926980972}, {"code": "SZ002240", "score": 0.08399906754493713}, {"code": "SH601899", "score": 0.08330373466014862}, {"code": "SZ000049", "score": 0.08313947916030884}, {"code": "SZ000878", "score": 0.0830063670873642}, {"code": "SZ002036", "score": 0.08293993026018143}, {"code": "SH600577", "score": 0.08288981765508652}, {"code": "SZ002316", "score": 0.08277619630098343}, {"code": "SH600888", "score": 0.08270453661680222}, {"code": "SZ300118", "score": 0.08266319334506989}, {"code": "SZ002346", "score": 0.08260389417409897}, {"code": "SZ002652", "score": 0.08248107880353928}, {"code": "SZ000821", "score": 0.08241128921508789}, {"code": "SH600226", "score": 0.08221759647130966}, {"code": "SZ002182", "score": 0.08218970149755478}, {"code": "SZ300283", "score": 0.08184110373258591}, {"code": "SZ002219", "score": 0.08183038979768753}, {"code": "SZ300340", "score": 0.08174876123666763}, {"code": "SZ002706", "score": 0.08157423138618469}, {"code": "SZ002290", "score": 0.08140643686056137}, {"code": "SZ002176", "score": 0.08129162341356277}, {"code": "SH601388", "score": 0.08120419085025787}, {"code": "SZ300308", "score": 0.08112392574548721}, {"code": "SZ300109", "score": 0.08100927621126175}, {"code": "SZ002067", "score": 0.0806242898106575}, {"code": "SZ000592", "score": 0.08059410005807877}, {"code": "SZ300335", "score": 0.08033641427755356}, {"code": "SH600732", "score": 0.08017057925462723}, {"code": "SZ000972", "score": 0.08011295646429062}, {"code": "SH600731", "score": 0.07963011413812637}, {"code": "SH600688", "score": 0.07947476953268051}, {"code": "SH601208", "score": 0.07932599633932114}, {"code": "SZ002597", "score": 0.07931298017501831}, {"code": "SZ000801", "score": 0.07919573783874512}, {"code": "SZ002397", "score": 0.07918059080839157}, {"code": "SH600745", "score": 0.07915527373552322}, {"code": "SZ300286", "score": 0.07911656051874161}, {"code": "SZ002148", "score": 0.07909369468688965}, {"code": "SH601137", "score": 0.07889080792665482}, {"code": "SH600623", "score": 0.07872316241264343}, {"code": "SZ002233", "score": 0.07863221317529678}, {"code": "SZ300316", "score": 0.07851509004831314}, {"code": "SZ300191", "score": 0.07846281677484512}, {"code": "SZ300385", "score": 0.07844055444002151}, {"code": "SZ002700", "score": 0.0784175917506218}, {"code": "SZ300207", "score": 0.07833654433488846}, {"code": "SZ002246", "score": 0.07784673571586609}, {"code": "SZ002205", "score": 0.07772917300462723}, {"code": "SZ002110", "score": 0.0773802325129509}, {"code": "SZ002249", "score": 0.0772005170583725}, {"code": "SH603399", "score": 0.07716517895460129}, {"code": "SZ002674", "score": 0.07702432572841644}, {"code": "SH600815", "score": 0.07678554207086563}, {"code": "SH600063", "score": 0.07658671587705612}, {"code": "SZ300292", "score": 0.07615569233894348}, {"code": "SH601599", "score": 0.07612834125757217}, {"code": "SH600423", "score": 0.07606150954961777}, {"code": "SH600635", "score": 0.07575538754463196}, {"code": "SH601808", "score": 0.07530924677848816}], "avoid": [{"code": "SZ000639", "score": -0.1389683187007904}, {"code": "SZ000078", "score": -0.12938866019248962}, {"code": "SH600892", "score": -0.1252995729446411}, {"code": "SZ002427", "score": -0.12316711992025375}, {"code": "SZ000790", "score": -0.11628829687833786}, {"code": "SZ000525", "score": -0.11270722001791}, {"code": "SH601008", "score": -0.11249608546495438}, {"code": "SZ002329", "score": -0.11214865744113922}, {"code": "SZ000826", "score": -0.11103112995624542}, {"code": "SH600189", "score": -0.10958767682313919}, {"code": "SH600800", "score": -0.10848361253738403}, {"code": "SZ300026", "score": -0.10843107849359512}, {"code": "SH600429", "score": -0.10723652690649033}, {"code": "SH600880", "score": -0.10704093426465988}, {"code": "SZ300158", "score": -0.10666289180517197}, {"code": "SH601007", "score": -0.10659465938806534}, {"code": "SH600643", "score": -0.1050366535782814}, {"code": "SZ002342", "score": -0.10426434874534607}, {"code": "SH600551", "score": -0.10412003844976425}, {"code": "SZ300084", "score": -0.10318150371313095}, {"code": "SH600519", "score": -0.10304351896047592}, {"code": "SZ002646", "score": -0.10177774727344513}, {"code": "SH600305", "score": -0.10143215954303741}, {"code": "SZ000869", "score": -0.10139387100934982}, {"code": "SZ002349", "score": -0.09948845207691193}, {"code": "SZ002181", "score": -0.09924709796905518}, {"code": "SZ002393", "score": -0.09791509062051773}, {"code": "SH600787", "score": -0.09763986617326736}, {"code": "SZ002702", "score": -0.09725495427846909}, {"code": "SH600073", "score": -0.09616114944219589}, {"code": "SH600887", "score": -0.09556963294744492}, {"code": "SZ002332", "score": -0.0952085331082344}, {"code": "SH600809", "score": -0.09473340958356857}, {"code": "SZ002549", "score": -0.0947173461318016}, {"code": "SZ000650", "score": -0.09401459246873856}, {"code": "SZ300315", "score": -0.0939919650554657}, {"code": "SZ300194", "score": -0.09382196515798569}, {"code": "SH600597", "score": -0.0928361713886261}, {"code": "SH603288", "score": -0.09278132766485214}, {"code": "SZ002038", "score": -0.09270545095205307}, {"code": "SZ300039", "score": -0.09265405684709549}, {"code": "SZ300240", "score": -0.09263353794813156}, {"code": "SZ002570", "score": -0.09223046153783798}, {"code": "SH600676", "score": -0.09213096648454666}, {"code": "SH600540", "score": -0.09060447663068771}, {"code": "SH600867", "score": -0.09010951220989227}, {"code": "SH600616", "score": -0.08987776935100555}, {"code": "SZ002004", "score": -0.0890311673283577}, {"code": "SZ000756", "score": -0.08880322426557541}, {"code": "SZ002094", "score": -0.08850855380296707}, {"code": "SH600790", "score": -0.08839388936758041}, {"code": "SZ002306", "score": -0.08808137476444244}, {"code": "SZ002095", "score": -0.08791503310203552}, {"code": "SZ002574", "score": -0.08784162253141403}, {"code": "SZ300267", "score": -0.08781672269105911}, {"code": "SH600053", "score": -0.08781667053699493}, {"code": "SH600805", "score": -0.08758566528558731}, {"code": "SZ002103", "score": -0.08756642788648605}, {"code": "SH600573", "score": -0.0873669683933258}, {"code": "SH600794", "score": -0.08734620362520218}, {"code": "SH600513", "score": -0.08732413500547409}, {"code": "SZ300350", "score": -0.08682438731193542}, {"code": "SZ000333", "score": -0.08673947304487228}, {"code": "SZ002365", "score": -0.08641280978918076}, {"code": "SH600238", "score": -0.08632480353116989}, {"code": "SZ000510", "score": -0.08620309084653854}, {"code": "SZ000858", "score": -0.08607959002256393}, {"code": "SZ002471", "score": -0.08526653796434402}, {"code": "SH600285", "score": -0.08516380935907364}, {"code": "SZ300006", "score": -0.08484773337841034}, {"code": "SH600557", "score": -0.08472494781017303}, {"code": "SZ000538", "score": -0.08465328067541122}, {"code": "SZ002566", "score": -0.08433109521865845}, {"code": "SH600059", "score": -0.08401037752628326}, {"code": "SZ300233", "score": -0.08374158293008804}, {"code": "SZ002556", "score": -0.08374052494764328}, {"code": "SH600132", "score": -0.08364234119653702}, {"code": "SZ300204", "score": -0.08359649032354355}, {"code": "SZ300261", "score": -0.08340618759393692}, {"code": "SZ300086", "score": -0.08337461203336716}, {"code": "SH600757", "score": -0.08324074745178223}, {"code": "SZ300016", "score": -0.0827731043100357}, {"code": "SZ000729", "score": -0.0826016440987587}, {"code": "SH600298", "score": -0.08240791410207748}, {"code": "SZ000153", "score": -0.08237352222204208}, {"code": "SH600610", "score": -0.08221117407083511}, {"code": "SH600521", "score": -0.08215069025754929}, {"code": "SZ002099", "score": -0.08204767853021622}, {"code": "SZ000568", "score": -0.08199358731508255}, {"code": "SZ000555", "score": -0.08175613731145859}, {"code": "SZ002317", "score": -0.08169660717248917}, {"code": "SZ002165", "score": -0.081656314432621}, {"code": "SH603369", "score": -0.08135362714529037}, {"code": "SZ002461", "score": -0.0812116339802742}, {"code": "SZ000802", "score": -0.08114445209503174}, {"code": "SH600365", "score": -0.0807550773024559}, {"code": "SZ000651", "score": -0.08070964366197586}, {"code": "SZ000001", "score": -0.08051448315382004}, {"code": "SZ002304", "score": -0.0803128257393837}, {"code": "SZ300238", "score": -0.07989926636219025}, {"code": "SH600644", "score": -0.07982888072729111}, {"code": "SZ000617", "score": -0.07963816076517105}, {"code": "SZ000017", "score": -0.07953088730573654}, {"code": "SZ000950", "score": -0.07952520996332169}, {"code": "SZ002682", "score": -0.07951806485652924}, {"code": "SZ002626", "score": -0.07923584431409836}, {"code": "SZ000953", "score": -0.0791531428694725}, {"code": "SZ300106", "score": -0.07906614989042282}, {"code": "SH600161", "score": -0.0790189802646637}, {"code": "SZ000848", "score": -0.07872764021158218}, {"code": "SH600196", "score": -0.07859834283590317}, {"code": "SZ002557", "score": -0.07841737568378448}, {"code": "SZ300142", "score": -0.07836335152387619}, {"code": "SH600436", "score": -0.07801536470651627}, {"code": "SH601009", "score": -0.07793552428483963}, {"code": "SZ002294", "score": -0.07779210060834885}, {"code": "SZ300313", "score": -0.07774403691291809}, {"code": "SZ002278", "score": -0.07772552222013474}, {"code": "SZ002100", "score": -0.07743760943412781}, {"code": "SH600300", "score": -0.07741282135248184}, {"code": "SZ002515", "score": -0.0766603872179985}, {"code": "SH600197", "score": -0.07645422220230103}, {"code": "SH600138", "score": -0.07617110759019852}, {"code": "SH600276", "score": -0.07607122510671616}, {"code": "SZ000596", "score": -0.076047882437706}, {"code": "SZ300179", "score": -0.07604493945837021}, {"code": "SZ002653", "score": -0.07596568763256073}, {"code": "SZ002537", "score": -0.07589040696620941}, {"code": "SZ002229", "score": -0.07581646740436554}, {"code": "SZ002603", "score": -0.07578754425048828}, {"code": "SZ000978", "score": -0.07561091333627701}, {"code": "SH600568", "score": -0.07542680948972702}, {"code": "SH600479", "score": -0.0753881186246872}, {"code": "SH600195", "score": -0.0753355622291565}, {"code": "SZ300406", "score": -0.07531129568815231}, {"code": "SZ002644", "score": -0.07525863498449326}, {"code": "SZ300110", "score": -0.0750880092382431}, {"code": "SH601939", "score": -0.07501941919326782}, {"code": "SZ002105", "score": -0.07501150667667389}, {"code": "SH600779", "score": -0.07476683706045151}, {"code": "SH600419", "score": -0.07472289353609085}, {"code": "SZ300138", "score": -0.07458668947219849}, {"code": "SH601098", "score": -0.07454734295606613}, {"code": "SH600702", "score": -0.07453899830579758}, {"code": "SZ002252", "score": -0.07416290789842606}, {"code": "SH603019", "score": -0.07381261140108109}, {"code": "SH600119", "score": -0.07380891591310501}, {"code": "SH601166", "score": -0.07375956326723099}, {"code": "SZ300130", "score": -0.07362928986549377}, {"code": "SZ300146", "score": -0.07354104518890381}, {"code": "SZ002550", "score": -0.07340259104967117}, {"code": "SZ002640", "score": -0.07331687957048416}, {"code": "SZ000513", "score": -0.07316438108682632}, {"code": "SZ002412", "score": -0.07301932573318481}, {"code": "SH600056", "score": -0.07291468977928162}, {"code": "SZ300380", "score": -0.07282743602991104}, {"code": "SZ000677", "score": -0.07281313836574554}, {"code": "SH600851", "score": -0.07271275669336319}, {"code": "SH600600", "score": -0.07265692204236984}, {"code": "SH600037", "score": -0.07239530235528946}, {"code": "SZ002286", "score": -0.07237888127565384}, {"code": "SH600229", "score": -0.07234316319227219}, {"code": "SH600882", "score": -0.0723409578204155}, {"code": "SZ000788", "score": -0.07211833447217941}, {"code": "SZ002330", "score": -0.07173197716474533}, {"code": "SZ002258", "score": -0.07158736139535904}, {"code": "SH600318", "score": -0.07152122259140015}, {"code": "SH601788", "score": -0.07142385095357895}, {"code": "SH600495", "score": -0.07124247401952744}, {"code": "SZ000739", "score": -0.07121854275465012}, {"code": "SZ300358", "score": -0.07111143320798874}, {"code": "SH600594", "score": -0.0709947869181633}, {"code": "SZ000565", "score": -0.07082352787256241}, {"code": "SH600095", "score": -0.07077805697917938}, {"code": "SZ002726", "score": -0.07074377685785294}, {"code": "SZ300149", "score": -0.0706849917769432}, {"code": "SZ002262", "score": -0.0704101175069809}, {"code": "SZ002019", "score": -0.0701759085059166}, {"code": "SH600743", "score": -0.07014800608158112}, {"code": "SH600158", "score": -0.07013645023107529}, {"code": "SH600350", "score": -0.07008680701255798}, {"code": "SH600062", "score": -0.06997408717870712}, {"code": "SH600655", "score": -0.06965292245149612}, {"code": "SH600278", "score": -0.06963241845369339}, {"code": "SZ002507", "score": -0.06952621787786484}, {"code": "SH600976", "score": -0.06927326321601868}, {"code": "SZ300009", "score": -0.06898722052574158}, {"code": "SZ000526", "score": -0.06880152225494385}, {"code": "SZ300044", "score": -0.06866029649972916}, {"code": "SH600753", "score": -0.06850036233663559}, {"code": "SZ002216", "score": -0.06823312491178513}, {"code": "SH600370", "score": -0.06819010525941849}, {"code": "SH600830", "score": -0.06811154633760452}, {"code": "SZ002173", "score": -0.06803230941295624}, {"code": "SZ002032", "score": -0.06797792762517929}, {"code": "SH601928", "score": -0.06786087900400162}, {"code": "SH600543", "score": -0.06781693547964096}, {"code": "SZ300180", "score": -0.06750213354825974}, {"code": "SZ300052", "score": -0.06746501475572586}, {"code": "SZ002291", "score": -0.06746368855237961}, {"code": "SH600476", "score": -0.06743266433477402}, {"code": "SH601318", "score": -0.06736720353364944}, {"code": "SH600373", "score": -0.0673663541674614}, {"code": "SZ002345", "score": -0.06724467128515244}, {"code": "SZ300013", "score": -0.0670730322599411}, {"code": "SH601328", "score": -0.06702321022748947}, {"code": "SZ002352", "score": -0.06674870103597641}, {"code": "SZ000719", "score": -0.06671897321939468}, {"code": "SZ000963", "score": -0.06667857617139816}, {"code": "SH600771", "score": -0.06606414169073105}, {"code": "SZ300291", "score": -0.0658237561583519}, {"code": "SH600828", "score": -0.06570064276456833}, {"code": "SH600030", "score": -0.06560518592596054}, {"code": "SZ002200", "score": -0.06557800620794296}, {"code": "SZ002135", "score": -0.06556326895952225}, {"code": "SH600251", "score": -0.0654938593506813}, {"code": "SH600697", "score": -0.06545528024435043}, {"code": "SZ002573", "score": -0.06542978435754776}, {"code": "SZ300377", "score": -0.06530525535345078}, {"code": "SZ000860", "score": -0.06486580520868301}, {"code": "SZ002736", "score": -0.0646362453699112}, {"code": "SH600420", "score": -0.06436695158481598}, {"code": "SH600613", "score": -0.06424202769994736}, {"code": "SH600571", "score": -0.06420516967773438}, {"code": "SZ000929", "score": -0.06414882093667984}, {"code": "SH603009", "score": -0.06409969180822372}, {"code": "SZ300085", "score": -0.06402135640382767}, {"code": "SH600660", "score": -0.06385082751512527}, {"code": "SH600774", "score": -0.06314246356487274}, {"code": "SZ002251", "score": -0.06298607587814331}, {"code": "SZ002022", "score": -0.06292153149843216}, {"code": "SZ000799", "score": -0.06288845092058182}, {"code": "SZ000705", "score": -0.0628129169344902}, {"code": "SH600559", "score": -0.06269167363643646}, {"code": "SH601799", "score": -0.06266803294420242}]}, "status": {"training": {"found": true, "running": true, "state": "运行中", "epoch": 30, "total_epochs": 30, "train_loss": 0.09979, "val_loss": 0.09353, "best_val": 0.09147, "params": 3809947, "total_stocks": 0, "restarts": 1, "early_stop": false}, "model": {"checkpoints": [{"name": "ckpt_V20_best.pt", "size_mb": 14.189570426940918, "mtime": "07-14 08:19"}, {"name": "ckpt_V21_best.pt", "size_mb": 14.588889122009277, "mtime": "07-16 18:24"}, {"name": "ckpt_V11_best.pt", "size_mb": 19.420077323913574, "mtime": "07-14 07:51"}], "champion": {"run": "Run7", "model": "v21_industry_realSW_PROD_20260716", "sharpe_20d": 10.5645, "ic_20d": 0.118, "icir_20d": 1.6268, "note": "生产权重已导出 model_archive/v21_industry_realSW_PROD_20260716.pt。Run8(dropout=0.22)已确认劣于Run7(val劣化、回撤放大)并回滚，Run7定为最终冠军与唯一生产权重。缓存数据真实性已于2026-07-16核验为REAL(非模拟)。"}, "production": {"status": "ready_for_live", "signal_script": "scripts/v21_live_signal.py", "weights": "training/model_archive/v21_industry_realSW_PROD_20260716.pt", "updated": "2026-07-16"}}, "data": {"industry_vocab": 5885, "cache_stocks": 5124, "label_cov": 5104, "label_pct": 99.6, "authenticity": {"status": "verified_real", "verified_at": "2026-07-16", "evidence": "npz close 与 unified/market CSV close 逐点一致(max diff=0.0, len=3001, 2014-01-07~2026-07-02); 60/60 抽样一致; 起始上市日离散(42/60各异)", "cache_source": "data/unified/market/*.csv (tdrive快照, 东方财富真实源)", "cache_until": "2026-07-02"}}, "containers": [], "instructions": {"count": 0, "types": {}}, "generated_at": "2026-07-16 20:14:24"}, "perf": {"generated_at": "2026-07-16", "source": "scripts/analyze_long_only.py @ verified-real cache; 验证窗口 n_test=51, 日频再平衡, 现实单边费0.10%", "note": "验证窗口(约51交易日)外推年化，方差大，非多年实盘业绩；纯多头无对冲，回撤显著。", "rows": [{"frac": 0.05, "hold": 5, "gross_ann": 0.662, "gross_sharpe": 1.89, "net_ann": 0.633, "net_sharpe": 1.84, "win_rate": 0.636, "max_dd": -0.345, "tag": ""}, {"frac": 0.05, "hold": 20, "gross_ann": 0.509, "gross_sharpe": 1.74, "net_ann": 0.503, "net_sharpe": 1.72, "win_rate": 0.614, "max_dd": -0.459, "tag": "主仓"}, {"frac": 0.1, "hold": 5, "gross_ann": 0.546, "gross_sharpe": 1.86, "net_ann": 0.523, "net_sharpe": 1.8, "win_rate": 0.614, "max_dd": -0.302, "tag": "波段"}, {"frac": 0.1, "hold": 20, "gross_ann": 0.404, "gross_sharpe": 1.62, "net_ann": 0.399, "net_sharpe": 1.61, "win_rate": 0.614, "max_dd": -0.415, "tag": ""}]}};
+const $=s=>document.querySelector(s);
+function show(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v_'+v));
+  document.querySelectorAll('#foot .tab').forEach(e=>e.classList.toggle('on',e.dataset.v===v));
+  const m=document.querySelector('.main');if(m)m.scrollTop=0;}
+document.getElementById('foot').addEventListener('click',e=>{const t=e.target.closest('.tab');if(t)show(t.dataset.v);});
+function fmtSc(x){return (x>=0?'+':'')+x.toFixed(3);}
+function rowHTML(o){
+  const cls=(o.score>=0?'pos':'neg');
+  return '<div class="row '+cls+'" data-code="'+o.code+'"><div class="rl"><span class="nm"></span><span class="code">'+o.code+'</span></div><span class="sc">'+fmtSc(o.score)+'</span><span class="pr">-</span><span class="ch"></span></div>';
+}
+function renderTier(el,list,filter){
+  if(!list||!list.length){el.innerHTML='<div class="empty">无</div>';return;}
+  const f=filter?filter.toLowerCase():'';
+  const fl=list.filter(o=>o.code.toLowerCase().includes(f));
+  el.innerHTML=fl.length?fl.map(rowHTML).join(''):'<div class="empty">无匹配</div>';
+}
+function paintSignal(s){
+  $('#c_core').textContent=s.buy_core.length;
+  $('#c_swing').textContent=s.buy_swing.length;
+  $('#c_avoid').textContent=s.avoid.length;
+  renderTier($('#core'),s.buy_core,$('#q').value);
+  renderTier($('#swing'),s.buy_swing,$('#q').value);
+  renderTier($('#avoid'),s.avoid,$('#q').value);
+  $('#upd').textContent='信号 '+ (s.time||'').replace('T',' ').slice(0,16) +' · 覆盖'+(s.n_universe||'?');
+}
+async function loadSignal(){
+  if(INIT&&INIT.signal){paintSignal(INIT.signal);return;}
+  try{const r=await fetch('/api/signal');const j=await r.json();
+    if(!j.ok||!j.signal){$('#core').innerHTML='<div class="empty">尚无信号</div>';return;}
+    paintSignal(j.signal);}catch(e){console.error(e);}
+}
+$('#q').oninput=()=>{const s=(INIT&&INIT.signal);if(s)paintSignal(s);};
+function paintStatus(s){
+    const au=s.data&&s.data.authenticity;
+    const b=$('#auth');
+    if(au&&au.status==='verified_real'){b.textContent='数据已核验·真实';b.className='badge ok';}
+    else{b.textContent='数据未核验';b.className='badge warn';}
+    const t=s.training;let h='<h2>① V21 全量训练</h2>';
+    if(!t.found){h+='<div class="kv"><span class="k">状态</span><span class="v" style="color:var(--red)">未启动/无日志</span></div>';}
+    else{
+      h+='<div class="kv"><span class="k">状态</span><span class="v">'+t.state+'</span></div>';
+      if(t.epoch!=null)h+='<div class="kv"><span class="k">进度</span><span class="v">ep'+t.epoch+'/'+t.total_epochs+'</span></div>';
+      if(t.total_stocks)h+='<div class="kv"><span class="k">规模</span><span class="v">'+t.total_stocks+' 只 · '+(t.params?t.params.toLocaleString():'')+' 参数</span></div>';
+      if(t.train_loss!=null)h+='<div class="kv"><span class="k">当前 loss</span><span class="v">train '+t.train_loss.toFixed(5)+' / val '+(t.val_loss!=null?t.val_loss.toFixed(5):'?')+'</span></div>';
+      if(t.best_val!=null&&t.best_val!==Infinity)h+='<div class="kv"><span class="k">最佳 val</span><span class="v">'+t.best_val.toFixed(5)+'</span></div>';
+      if(t.restarts>1)h+='<div class="kv"><span class="k">守护重启</span><span class="v">'+(t.restarts-1)+' 次</span></div>';
+      if(t.early_stop)h+='<div class="kv"><span class="k">早停</span><span class="v" style="color:var(--ylw)">已触发</span></div>';
+    }
+    $('#train_card').innerHTML=h;
+    const m=s.model;let mh='<h2>② 模型 / 数据</h2>';
+    mh+='<div class="kv"><span class="k">冠军</span><span class="v">'+(m.champion.run||'?')+'</span></div>';
+    if(m.champion.sharpe_20d!=null)mh+='<div class="kv"><span class="k">对冲夏普(20d)</span><span class="v">'+m.champion.sharpe_20d+'</span></div>';
+    const p=m.production||{};
+    mh+='<div class="kv"><span class="k">生产状态</span><span class="v">'+(p.status||'?')+'</span></div>';
+    const d=s.data||{};
+    mh+='<div class="kv"><span class="k">行业词表</span><span class="v">'+(d.industry_vocab||'?')+' 条</span></div>';
+    mh+='<div class="kv"><span class="k">训练缓存</span><span class="v">'+(d.cache_stocks||'?')+' 只</span></div>';
+    mh+='<div class="kv"><span class="k">标签覆盖</span><span class="v">'+(d.label_cov||'?')+'/'+(d.cache_stocks||'?')+' = '+(d.label_pct||'?')+'%</span></div>';
+    const au2=d.authenticity||{};
+    mh+='<div class="kv"><span class="k">缓存截止</span><span class="v">'+(au2.cache_until||'?')+'</span></div>';
+    if(m.checkpoints&&m.checkpoints.length){
+      mh+='<div style="margin-top:8px"></div>';
+      m.checkpoints.slice(0,6).forEach(c=>{mh+='<div class="kv"><span class="k">'+c.name+'</span><span class="v">'+c.size_mb+' MB</span></div>';});
+    }
+    $('#model_card').innerHTML=mh;
+    $('#upd').textContent=($('#upd').textContent||'')+' · 看板 '+s.generated_at;
+}
+async function loadStatus(){
+  if(INIT&&INIT.status){paintStatus(INIT.status);return;}
+  try{const r=await fetch('/api/status');const s=await r.json();paintStatus(s);}catch(e){console.error(e);}
+}
+function paintPerf(j){
+    const rows=j.rows||[];
+    let h='<table><thead><tr><th>分档</th><th>持有</th><th>净年化</th><th>净夏普</th><th>胜率</th><th>回撤</th></tr></thead><tbody>';
+    rows.forEach(rw=>{h+='<tr><td>top'+(rw.frac*100)+'%'+(rw.tag?'<span class="tag">'+rw.tag+'</span>':'')+'</td><td>'+rw.hold+'d</td><td>'+(rw.net_ann*100).toFixed(1)+'%</td><td>'+rw.net_sharpe.toFixed(2)+'</td><td>'+(rw.win_rate*100).toFixed(0)+'%</td><td style="color:var(--red)">'+(rw.max_dd*100).toFixed(0)+'%</td></tr>';});
+    h+='</tbody></table>';
+    h+='<div class="note">验证窗口(~51交易日)外推年化，方差大，非多年实盘业绩；纯多头无对冲，回撤显著。</div>';
+    $('#perf').innerHTML=h;
+}
+async function loadPerf(){
+  if(INIT&&INIT.perf){paintPerf(INIT.perf);return;}
+  try{const r=await fetch('/api/perf');const j=await r.json();paintPerf(j);}catch(e){console.error(e);}
+}
+async function fetchRealtime(){
+  const els = document.querySelectorAll('[data-code]');
+  const codes = [...new Set(Array.from(els).map(el=>el.getAttribute('data-code')))];
+  if(!codes.length) return;
+  const batchSize = 150;
+  for(let i=0;i<codes.length;i+=batchSize){
+    const batch = codes.slice(i,i+batchSize).map(c=>(c.startsWith('SH')?'sh':'sz')+c.slice(2)).join(',');
+    try{
+      const r = await fetch('https://qt.gtimg.cn/q='+batch);
+      const buf = await r.arrayBuffer();
+      const text = new TextDecoder('gbk').decode(buf);
+      text.split('\n').forEach(line=>{
+        const m=line.match(/^v_([a-z0-9]+)="(.+)";?$/); if(!m) return;
+        const val=m[2].split('~'); const fc=(m[1].startsWith('sh')?'SH':'SZ')+m[1].slice(2);
+        const el=document.querySelector('[data-code="'+fc+'"]'); if(!el) return;
+        const nm=el.querySelector('.nm'); if(nm) nm.textContent=val[1];
+        const p=el.querySelector('.pr'); const c=el.querySelector('.ch');
+        if(p) p.textContent=val[3];
+        if(c){const pc=parseFloat((val[32]||'').trim());if(!isNaN(pc)){c.textContent=(pc>=0?'+':'')+pc.toFixed(2)+'%';c.className='ch '+(pc>0?'up':(pc<0?'dn':''));}}
+      });
+    }catch(e){}
+  }
+}
+if(!INIT){
+  $('#refresh').onclick=async()=>{
+    const btn=$('#refresh');btn.disabled=true;btn.innerHTML='<span class="spin"></span>刷新中…';
+    try{await fetch('/api/refresh',{method:'POST'});await loadSignal();}catch(e){}
+    btn.disabled=false;btn.innerHTML='↻ 刷新信号';
+  };
+  setInterval(loadStatus,30000);
+}else{
+  const rb=$('#refresh');rb.disabled=true;rb.textContent='↻ 静态版·重新导出更新';
+}
+loadSignal();loadStatus();loadPerf();fetchRealtime();
+setInterval(fetchRealtime,30000);
+</script>
+</body>
+</html>
