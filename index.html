@@ -183,6 +183,16 @@ body{display:flex;flex-direction:column;height:100dvh}
 </div>
 
 <div class="view" id="v_briefing">
+  <div class="card" style="border-color:var(--amber);margin-bottom:8px">
+    <h2>📡 动态快讯 · 特变电工<span style="font-size:9px;color:var(--txt3);font-weight:400;margin-left:8px">7/18更新</span></h2>
+    <div id="news_feed" style="font-size:12px;line-height:1.5">
+      <div style="padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3)"><b style="color:var(--red)">⚠</b> 7/16 公司回应投资者：股价短期波动受多重因素影响，不存在配合可转债压低股价</div>
+      <div style="padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3)"><b style="color:var(--amber)">📌</b> 7/16 公司表态：将持续强化核心优势，优化资源配置，稳健经营</div>
+      <div style="padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3)"><b>📊</b> 7/3 收盘22.01元，拟派现金红利0.36元，发行10亿可转债</div>
+      <div style="padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3)"><b style="color:var(--red)">📉</b> 电力设备板块近5日-8.22%，20日-20.67%，主力净流出59.51亿</div>
+      <div style="padding:4px 0"><b style="color:var(--amber)">🌍</b> 北向资金Q2净流入1580亿创两年新高，电力设备获800亿+流入</div>
+    </div>
+  </div>
   <div id="brief_content" class="briefing"></div>
 </div>
 
@@ -510,6 +520,13 @@ fetch('init.json').then(function(r){return r.json();}).then(tryInit).catch(funct
 setInterval(function(){
   $('#clk').textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false});
 },10000);
+
+// auto-refresh news stamp
+setInterval(function(){
+  var nf=$('#news_feed');if(!nf)return;
+  var s=nf.parentElement.querySelector('h2 span');
+  if(s)s.textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false}).replace(/:\d{2}$/,'')+'更新';
+},300000);
 
 </script>
 </body>
