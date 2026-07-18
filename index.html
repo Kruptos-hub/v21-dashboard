@@ -131,7 +131,7 @@ body{display:flex;flex-direction:column;height:100dvh}
   <div class="topbar-right"><span id="clk">—</span></div>
 </div>
 <div class="side" id="side">
-  <div class="item on" data-v="holdings">📊 持仓</div>
+  <div class="item on" data-v="flow">📊 持仓</div>
   <div class="item" data-v="strategy">🎯 策略</div>
   <div class="item" data-v="briefing">📰 简报</div>
   <div class="item" data-v="sig">📡 雷达</div>
@@ -140,11 +140,6 @@ body{display:flex;flex-direction:column;height:100dvh}
   <div class="item" data-v="perf">🏆 绩效</div>
 </div>
 <div class="main">
-
-<div class="view on" id="v_holdings">
-  <div class="tac" id="holdings_summary"></div>
-  <div id="holdings_list"></div>
-</div>
 
 <div class="view" id="v_strategy">
   <div class="info" id="strategy_ipo">加载中…</div>
@@ -156,7 +151,7 @@ body{display:flex;flex-direction:column;height:100dvh}
   <div class="card"><h2>📊 V21 信号</h2><div id="strategy_signal"></div></div>
 </div>
 
-<div class="view" id="v_flow">
+<div class="view on" id="v_flow">
   <div class="tac" id="flow_holdings"></div>
   <div id="flow_positions"></div>
   <div class="card"><h2>💰 特变电工 资金流向</h2><div id="flow_sh089" class="pr"></div></div>
