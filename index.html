@@ -60,18 +60,19 @@ body{display:flex;flex-direction:column;height:100dvh}
 .pr .r .k{color:var(--txt2)}.pr .r .v{font-weight:600;font-variant-numeric:tabular-nums}
 
 /* briefing */
-.briefing{font-size:12px;line-height:1.35}
-.briefing h1{font-size:14px;margin:0 0 2px;font-weight:700}
-.briefing h2{font-size:12px;margin:8px 0 2px;color:var(--acc);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:2px}
-.briefing h3{font-size:11px;margin:5px 0 2px;font-weight:600}
-.briefing p{margin:2px 0;font-size:12px;color:var(--txt2)}
-.briefing table{width:100%;border-collapse:collapse;margin:2px 0;font-size:11px}
-.briefing td{padding:2px 5px;border-bottom:1px solid rgba(30,42,54,.3)}
+.briefing{font-size:13px;line-height:1.45}
+@media(min-width:900px){.briefing{columns:2;column-gap:20px}}
+.briefing h1{font-size:15px;margin:0 0 4px;font-weight:700;column-span:all}
+.briefing h2{font-size:13px;margin:10px 0 3px;color:var(--acc);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:2px;break-inside:avoid}
+.briefing h3{font-size:12px;margin:6px 0 3px;font-weight:600;break-inside:avoid}
+.briefing p{margin:3px 0;font-size:13px;color:var(--txt2)}
+.briefing table{width:100%;border-collapse:collapse;margin:3px 0;font-size:12px;break-inside:avoid}
+.briefing td{padding:3px 5px;border-bottom:1px solid rgba(30,42,54,.3)}
 .briefing td:first-child{color:var(--txt2);white-space:nowrap}
 .briefing td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
-.briefing blockquote{margin:3px 0;padding:4px 8px;border-left:2px solid var(--amber);background:var(--amber-bg);border-radius:0 4px 4px 0;font-size:11px;color:var(--amber)}
-.briefing ul{padding-left:14px;margin:2px 0}.briefing li{margin:2px 0;font-size:12px;line-height:1.35}
-.briefing hr{border:none;border-top:1px solid var(--border);margin:5px 0}
+.briefing blockquote{margin:4px 0;padding:5px 10px;border-left:2px solid var(--amber);background:var(--amber-bg);border-radius:0 4px 4px 0;font-size:12px;color:var(--amber);break-inside:avoid}
+.briefing ul{padding-left:16px;margin:3px 0;break-inside:avoid}.briefing li{margin:3px 0;font-size:13px;line-height:1.45}
+.briefing hr{border:none;border-top:1px solid var(--border);margin:6px 0;break-after:avoid}
 .briefing strong{color:var(--txt)}.briefing em{color:var(--acc)}
 
 /* signal tiers */
