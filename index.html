@@ -36,9 +36,11 @@ body{display:flex;flex-direction:column;height:100dvh}
 .alert{background:var(--red-bg);border:1px solid rgba(248,81,73,.2);border-radius:6px;padding:6px 10px;margin:4px 0;font-size:12px}
 .info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.12);border-radius:6px;padding:6px 10px;margin:4px 0;font-size:12px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
-/* sidebar (desktop) */
+/* sidebar */
 .side{display:none}
+.main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px}
 @media(min-width:900px){
   body{flex-direction:row;flex-wrap:wrap}
   .topbar{flex-basis:100%}
@@ -48,10 +50,8 @@ body{display:flex;flex-direction:column;height:100dvh}
     cursor:pointer;display:flex;gap:6px;align-items:center;user-select:none}
   .side .item:hover{background:var(--card)}
   .side .item.on{background:var(--card);color:var(--acc);font-weight:600}
-  .main{flex:1;height:calc(100dvh - 40px);overflow-y:auto}
+  .main{flex:1;height:calc(100dvh - 40px);overflow-y:auto;padding:10px}
 }
-.main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px}
-
 /* pos rows */
 .pr{display:flex;flex-direction:column;gap:4px}
 .pr .r{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;
@@ -59,31 +59,38 @@ body{display:flex;flex-direction:column;height:100dvh}
 .pr .r .k{color:var(--txt2)}.pr .r .v{font-weight:600;font-variant-numeric:tabular-nums}
 
 /* briefing */
-.briefing{font-size:12px;line-height:1.35}
-.briefing h1{font-size:14px;margin:0 0 2px;font-weight:700}
-.briefing h2{font-size:12px;margin:8px 0 2px;color:var(--acc);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:2px}
-.briefing h3{font-size:11px;margin:5px 0 2px;font-weight:600}
-.briefing p{margin:2px 0;font-size:12px;color:var(--txt2)}
-.briefing table{width:100%;border-collapse:collapse;margin:2px 0;font-size:11px}
-.briefing td{padding:2px 5px;border-bottom:1px solid rgba(30,42,54,.3)}
+.briefing{font-size:13px;line-height:1.45}
+.briefing h1{font-size:15px;margin:0 0 4px;font-weight:700}
+.briefing h2{font-size:13px;margin:10px 0 3px;color:var(--acc);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:2px;break-inside:avoid}
+.briefing h3{font-size:12px;margin:6px 0 3px;font-weight:600;break-inside:avoid}
+.briefing p{margin:3px 0;font-size:13px;color:var(--txt2)}
+.briefing table{width:100%;border-collapse:collapse;margin:3px 0;font-size:12px;break-inside:avoid}
+.briefing td{padding:3px 5px;border-bottom:1px solid rgba(30,42,54,.3)}
 .briefing td:first-child{color:var(--txt2);white-space:nowrap}
 .briefing td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
-.briefing blockquote{margin:3px 0;padding:4px 8px;border-left:2px solid var(--amber);background:var(--amber-bg);border-radius:0 4px 4px 0;font-size:11px;color:var(--amber)}
-.briefing ul{padding-left:14px;margin:2px 0}.briefing li{margin:2px 0;font-size:12px;line-height:1.35}
-.briefing hr{border:none;border-top:1px solid var(--border);margin:5px 0}
+.briefing blockquote{margin:4px 0;padding:5px 10px;border-left:2px solid var(--amber);background:var(--amber-bg);border-radius:0 4px 4px 0;font-size:12px;color:var(--amber);break-inside:avoid}
+.briefing ul{padding-left:16px;margin:3px 0;break-inside:avoid}.briefing li{margin:3px 0;font-size:13px;line-height:1.45}
+.briefing hr{border:none;border-top:1px solid var(--border);margin:6px 0;break-after:avoid}
 .briefing strong{color:var(--txt)}.briefing em{color:var(--acc)}
 
 /* signal tiers */
-.tier{margin-bottom:8px}.tier h3{font-size:12px;font-weight:600;margin-bottom:4px;padding:4px 8px;border-radius:4px}
-.core h3{color:var(--grn);background:var(--grn-bg)}
-.swing h3{color:var(--acc);background:rgba(121,192,255,.06)}
-.avoid h3{color:var(--red);background:var(--red-bg)}
+.tier{padding:0;border-radius:6px}
+.tier h3{font-size:12px;font-weight:600;margin:0;padding:4px 8px;border-radius:4px 4px 0 0}
+.core{background:rgba(248,81,73,.04);border:1px solid rgba(248,81,73,.15)}
+.core h3{color:var(--red);background:var(--red-bg)}
+.core .srow,.core .srow .sc{color:var(--red)}
+.swing{background:rgba(210,153,34,.04);border:1px solid rgba(210,153,34,.12)}
+.swing h3{color:var(--amber);background:var(--amber-bg)}
+.swing .srow,.swing .srow .sc{color:var(--amber)}
+.avoid{background:rgba(63,185,80,.04);border:1px solid rgba(63,185,80,.15)}
+.avoid h3{color:var(--grn);background:var(--grn-bg)}
+.avoid .srow,.avoid .srow .sc{color:var(--grn)}
+.tier>div{padding:4px 6px}
 
 /* sig rows */
-.srow{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;font-size:12px;border-bottom:1px solid rgba(30,42,54,.3);cursor:pointer}
-.srow span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:12px}
-.srow:hover{background:var(--surface)}.srow.pos{color:var(--grn)}.srow.neg{color:var(--red)}
-.srow .sc{font-weight:600;font-variant-numeric:tabular-nums}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:12px;border-bottom:1px solid rgba(30,42,54,.3);cursor:pointer}
+.srow:hover{background:var(--surface)}.srow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+.srow .sc{font-weight:600;font-variant-numeric:tabular-nums;flex-shrink:0;margin-left:8px}
 
 /* ta cards */
 .tac{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
@@ -98,7 +105,7 @@ body{display:flex;flex-direction:column;height:100dvh}
   border-left:1px solid var(--border);padding:16px;overflow-y:auto}
 .sheet_box .x{position:absolute;right:12px;top:12px;font-size:18px;color:var(--txt3);background:none;border:none;cursor:pointer}
 .sheet_box .nm{font-size:18px;font-weight:700}.sheet_box .cd{font-size:12px;color:var(--txt3);margin-left:6px}
-.sheet_box .big{font-size:28px;font-weight:800;margin:6px 0}.sheet_box .live{margin:8px 0;font-size:13px;color:var(--txt2)}
+.sheet_box .big{font-size:28px;font-weight:800;margin:6px 0}
 
 /* gate */
 .gate{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
@@ -114,31 +121,35 @@ body{display:flex;flex-direction:column;height:100dvh}
 .search{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;
   background:var(--surface);color:var(--txt);font-size:14px;margin-bottom:8px;outline:none}
 .search:focus{border-color:var(--acc)}
+
+/* trade alert banner */
+.trade-alert{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;margin-bottom:10px;font-size:12px}
+.trade-alert.red{background:var(--red-bg);border:1px solid rgba(248,81,73,.3)}
+.trade-alert.amber{background:var(--amber-bg);border:1px solid rgba(210,153,34,.3)}
+.trade-alert .blink{animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.trade-alert b{white-space:nowrap}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <div class="topbar-brand">KrupstockSys</div>
+  <div class="topbar-brand">KrupstockSys <small style="color:var(--grn);font-size:10px">v2.42</small></div>
   <div class="topbar-mid">
     <span id="tb_hs">沪深300 —</span><span id="tb_pos">特变 —</span>
   </div>
   <div class="topbar-right"><span id="clk">—</span></div>
 </div>
 <div class="side" id="side">
-  <div class="item on" data-v="holdings">📊 持仓</div>
+  <div class="item on" data-v="flow">📊 持仓</div>
   <div class="item" data-v="strategy">🎯 策略</div>
   <div class="item" data-v="briefing">📰 简报</div>
   <div class="item" data-v="sig">📡 雷达</div>
-  <div class="item" data-v="flow">💰 资金</div>
   <div class="item" data-v="model">🧠 模型</div>
   <div class="item" data-v="perf">🏆 绩效</div>
 </div>
 <div class="main">
 
-<div class="view on" id="v_holdings">
-  <div class="tac" id="holdings_summary"></div>
-  <div id="holdings_list"></div>
-</div>
+<div id="trade_banner"></div>
 
 <div class="view" id="v_strategy">
   <div class="info" id="strategy_ipo">加载中…</div>
@@ -150,7 +161,9 @@ body{display:flex;flex-direction:column;height:100dvh}
   <div class="card"><h2>📊 V21 信号</h2><div id="strategy_signal"></div></div>
 </div>
 
-<div class="view" id="v_flow">
+<div class="view on" id="v_flow">
+  <div class="tac" id="flow_holdings"></div>
+  <div id="flow_positions"></div>
   <div class="card"><h2>💰 特变电工 资金流向</h2><div id="flow_sh089" class="pr"></div></div>
   <div class="grid2">
     <div class="card"><h2>主力 vs 散户</h2><div id="flow_main_vs" class="pr"></div></div>
@@ -162,12 +175,34 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 <div class="view" id="v_sig">
   <input class="search" id="q" placeholder="搜索代码/名称…">
-  <div class="tier core"><h3>主仓<span class="cnt" id="c_core"></span></h3><div id="core"></div></div>
-  <div class="tier swing"><h3>波段<span class="cnt" id="c_swing"></span></h3><div id="swing"></div></div>
-  <div class="tier avoid"><h3>回避<span class="cnt" id="c_avoid"></span></h3><div id="avoid"></div></div>
+  <div class="grid3">
+    <div class="tier core"><h3>主仓 · 长线 <span class="cnt" id="c_core"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">V21前3% 评分越高越强</small></h3><div id="core"></div></div>
+    <div class="tier swing"><h3>波段 · T+0/T+1 <span class="cnt" id="c_swing"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名3%~8% 短线标的</small></h3><div id="swing"></div></div>
+    <div class="tier avoid"><h3>回避 · 不持仓 <span class="cnt" id="c_avoid"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名后8% V21看空</small></h3><div id="avoid"></div></div>
+  </div>
 </div>
 
 <div class="view" id="v_briefing">
+  <div class="card" style="border-color:var(--amber);margin-bottom:8px">
+    <h2>📡 动态快讯 · 近7日</h2>
+    <div style="font-size:12px;line-height:1.5;max-height:130px;overflow-y:auto">
+      <a href="https://gu.qq.com/sh600089/gp" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--red)">⚠</b> 7/17 收18.66(-1.17%)，5日-6.98%，主力净流出2.16亿</a>
+      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--red)">⚠</b> 7/16 公司：股价短期波动，暂无回购增持计划</a>
+      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--amber)">📌</b> 7/16 公司：经营正常，持续强化核心优势稳健经营</a>
+      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--amber)">🌍</b> Q2北向净流入1580亿，电力设备获800亿+</a>
+      <a href="https://gu.qq.com/sh600089/gp" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--grn)">💹</b> 拟派现金红利0.36元/股，发行10亿可转债</a>
+      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;color:var(--txt2);text-decoration:none"><b style="color:var(--red)">📉</b> 电力设备20日-20.67%，主力净流出59.51亿</a>
+    </div>
+  </div>
+  <div class="card" style="border-color:var(--blue);margin-bottom:8px">
+    <h2>💬 网友热议 · 互动平台</h2>
+    <div style="font-size:12px;line-height:1.5">
+      <details style="padding:3px 0;border-bottom:1px solid rgba(30,42,54,.3)"><summary style="cursor:pointer;color:var(--amber)">😤 "调入上证50后跌更多了，是被资本针对了吗？"</summary><div style="color:var(--txt2);padding:4px 8px;font-size:11px">公司：股价受宏观环境、行业周期及市场情绪等多重因素影响，经营正常。</div></details>
+      <details style="padding:3px 0;border-bottom:1px solid rgba(30,42,54,.3)"><summary style="cursor:pointer;color:var(--red)">😡 "是否配合可转债压低股价？请给交代"</summary><div style="color:var(--txt2);padding:4px 8px;font-size:11px">公司：股价受多重因素影响，目前暂无回购增持计划。</div></details>
+      <details style="padding:3px 0;border-bottom:1px solid rgba(30,42,54,.3)"><summary style="cursor:pointer;color:var(--txt3)">😭 "求求别再跌了，生活费都亏没了！呜呜呜"</summary><div style="color:var(--txt2);padding:4px 8px;font-size:11px">公司：扎实做好经营主业，持续提升经营效益。</div></details>
+      <details style="padding:3px 0"><summary style="cursor:pointer;color:var(--txt3)">🤔 "是否关注市场价值反映？有何措施？"</summary><div style="color:var(--txt2);padding:4px 8px;font-size:11px">公司：持续强化核心优势，促进投资价值合理反映。</div></details>
+    </div>
+  </div>
   <div id="brief_content" class="briefing"></div>
 </div>
 
@@ -189,7 +224,7 @@ body{display:flex;flex-direction:column;height:100dvh}
     <div class="nm" id="d_name">—</div>
     <div class="cd" id="d_code"></div>
     <div class="big" id="d_score">—</div>
-    <div class="live">现价 <b id="d_pr">—</b> &nbsp; 涨跌 <b id="d_ch">—</b></div>
+    <div>现价 <b id="d_pr">—</b> &nbsp; 涨跌 <b id="d_ch">—</b></div>
     <div id="d_ctx" class="note"></div>
     <div class="note">同层相邻：</div>
     <div id="d_neighbors"></div>
@@ -207,7 +242,6 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 <script>
 var INIT=null;
-var _rtTimer=null;
 var RT={};
 var $=s=>document.querySelector(s);
 
@@ -217,7 +251,7 @@ function show(v){
 }
 document.addEventListener('click',e=>{var t=e.target.closest('[data-v]');if(t)show(t.dataset.v);});
 
-// ── gate ──
+// gate
 if(localStorage.getItem('krup_v2_unlocked')){$('#gate').style.display='none';}else{
   $('#gate_btn').onclick=function(){
     var pw=$('#gate_inp').value;
@@ -227,13 +261,13 @@ if(localStorage.getItem('krup_v2_unlocked')){$('#gate').style.display='none';}el
   $('#gate_inp').onkeydown=function(e){if(e.key==='Enter')$('#gate_btn').click();};
 }
 
-// ── clock ──
+// clock
 function tick(){var d=new Date();$('#clk').textContent=d.toLocaleTimeString('zh-CN',{hour12:false});}
 setInterval(tick,1000);tick();
 
-// ── signal ──
+// signal
 function fmtSc(x){return(x>=0?'+':'')+x.toFixed(3);}
-function srowHTML(o){return'<div class="srow '+(o.score>=0?'pos':'neg')+'" data-code="'+o.code+'"><span>'+(o.name||o.code)+' <span style="font-size:10px;color:var(--txt3)">'+o.code+'</span></span><span class="sc">'+fmtSc(o.score)+'</span></div>';}
+function srowHTML(o){return'<div class="srow" data-code="'+o.code+'"><span class="nm">'+(o.name||o.code)+'</span><span style="font-size:10px;color:var(--txt3);margin-right:auto">'+o.code+'</span><span class="sc" title="V21模型评分">'+fmtSc(o.score)+'</span></div>';}
 function paintSignal(s){
   $('#c_core').textContent=s.buy_core.length;
   $('#c_swing').textContent=s.buy_swing.length;
@@ -248,15 +282,15 @@ function loadSignal(){
 }
 $('#q').oninput=function(){if(INIT&&INIT.signal)paintSignal(INIT.signal);};
 
-// ── status/model/perf ──
+// status/model
 function paintStatus(s){
   var t=s.training||{};
-  var h='<h2>V21 训练 <span class="cnt">'+((s.model||{}).champion||{}).name||'Run9'+'</span></h2>';
+  var h='<h2>V21 训练 <span class="cnt">'+(((s.model||{}).champion||{}).name||'Run9')+'</span></h2>';
   if(t.found){h+='<div class="pr"><div class="r"><span class="k">状态</span><span class="v">'+t.state+'</span></div>';
     if(t.epoch)h+='<div class="r"><span class="k">进度</span><span class="v">ep'+t.epoch+'/'+t.total_epochs+'</span></div>';
     h+='<div class="r"><span class="k">规模</span><span class="v">'+(t.total_stocks||'?')+'只 '+(t.params||'')+'参数</span></div>';
-    if(t.train_loss)h+='<div class="r"><span class="k">loss</span><span class="v">train '+t.train_loss.toFixed(4)+' val '+(t.val_loss||0).toFixed(4)+'</span></div>';
-    if(t.best_val)h+='<div class="r"><span class="k">最佳val</span><span class="v">'+t.best_val.toFixed(4)+'</span></div>';
+    if(t.train_loss!=null)h+='<div class="r"><span class="k">loss</span><span class="v">train '+t.train_loss.toFixed(4)+' val '+(t.val_loss||0).toFixed(4)+'</span></div>';
+    if(t.best_val!=null)h+='<div class="r"><span class="k">最佳val</span><span class="v">'+t.best_val.toFixed(4)+'</span></div>';
   }else{h+='<div class="empty">训练日志未找到</div>';}
   h+='</div>';
   $('#train_card').innerHTML=h;
@@ -273,9 +307,9 @@ function loadStatus(){
 }
 
 function paintPerf(j){
-  var rows=j.rows||[];var h='';
+  var rows=j.rows||[];
   if(!rows.length){$('#perf').innerHTML='<div class="empty">训练完成后自动生成</div>';return;}
-  h+='<table style="width:100%;font-size:11px;border-collapse:collapse"><thead><tr><th>分档</th><th>持有</th><th>净年化</th><th>净夏普</th><th>胜率</th></tr></thead><tbody>';
+  var h='<table style="width:100%;font-size:11px;border-collapse:collapse"><thead><tr><th>分档</th><th>持有</th><th>净年化</th><th>净夏普</th><th>胜率</th></tr></thead><tbody>';
   rows.forEach(r=>{h+='<tr><td>top'+(r.frac*100).toFixed(0)+'%</td><td>'+r.hold+'d</td><td style="color:var(--grn)">'+(r.net_ann*100).toFixed(1)+'%</td><td>'+r.net_sharpe.toFixed(2)+'</td><td>'+(r.win_rate*100).toFixed(0)+'%</td></tr>';});
   h+='</tbody></table>';
   $('#perf').innerHTML=h;
@@ -285,7 +319,7 @@ function loadPerf(){
   fetch('/api/perf').then(r=>r.json()).then(paintPerf);
 }
 
-// ── holdings ──
+// holdings
 function paintHoldings(){
   var ha=INIT&&INIT.holding_analysis, hh=INIT&&INIT.holdings;
   if(!ha||!ha.length){
@@ -297,15 +331,15 @@ function paintHoldings(){
   var r=((tv)/Math.max(ta,1)*100).toFixed(1);
   $('#holdings_summary').innerHTML=
     '<div class="info"><div class="n">¥'+ta.toLocaleString()+'</div><div class="l">总资产</div></div>'+
-    '<div class="'+(tp>=0?'buy':'sell')+'"><div class="n">'+(tp>=0?'+':'')+Math.round(tp).toLocaleString()+'</div><div class="l">浮动盈亏</div></div>'+
+    '<div class="'+(tp>=0?'sell':'buy')+'"><div class="n">'+(tp>=0?'+':'')+Math.round(tp).toLocaleString()+'</div><div class="l">浮动盈亏</div></div>'+
     '<div class="info"><div class="n">'+r+'%</div><div class="l">仓位</div></div>'+
     '<div class="info"><div class="n">¥'+cash.toFixed(0)+'</div><div class="l">可用</div></div>';
   $('#holdings_list').innerHTML=ha.map(function(p){
-    return'<div class="pr"><div class="r '+(p.pnl_pct<0?'sell':'buy')+'" style="border-left-color:'+(p.pnl_pct<0?'var(--red)':'var(--grn)')+'"><span class="k">'+p.name+' <small>'+p.shares.toLocaleString()+'股 @¥'+p.cost.toFixed(2)+'</small></span><span class="v" style="color:'+(p.pnl_pct<0?'var(--red)':'var(--grn)')+'">'+(p.pnl_pct>=0?'+':'')+p.pnl_pct.toFixed(2)+'%</span></div></div>';
+    return'<div class="pr"><div class="r '+(p.pnl_pct<0?'buy':'sell')+'" style="border-left-color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'"><span class="k">'+p.name+' <small>'+p.shares.toLocaleString()+'股 @¥'+p.cost.toFixed(2)+'</small></span><span class="v" style="color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'">'+(p.pnl_pct>=0?'+':'')+p.pnl_pct.toFixed(2)+'%</span></div></div>';
   }).join('');
 }
 
-// ── strategy ──
+// strategy
 function paintStrategy(d){
   if(!d)return;
   var ip=d.ipo||{},h=d.holding||{},mp=(d.plan||{}).monday_plan||{};
@@ -325,20 +359,50 @@ function paintStrategy(d){
   var rk='<div class="pr">';
   stops.forEach(function(s){rk+='<div class="r" style="border-left-color:var(--red)"><span class="k">'+s+'</span></div>';});
   rk+='</div>';$('#strategy_risk').innerHTML=rk;
-  // V21 signal
   var st=INIT&&INIT.status,sh=st&&st.SH600089||{};
   $('#strategy_signal').innerHTML='<div class="pr"><div class="r"><span class="k">V21排名</span><span class="v">#'+(sh.rank||'?')+'/'+(sh.total||'?')+'</span></div><div class="r"><span class="k">综合评分</span><span class="v">'+(sh.combined_score||'?')+'</span></div><div class="r"><span class="k">研判</span><span class="v" style="font-size:11px">'+(sh.assessment||'—')+'</span></div></div>';
-  // update topbar
   $('#tb_hs').textContent='沪深300 3764';
   $('#tb_pos').innerHTML='特变 <span style="color:var(--red)">¥'+(h.price||'18.66')+'</span>';
 }
 function loadStrategy(){
-  if(INIT&&INIT.strategy){paintStrategy(INIT.strategy);return;}
-  fetch('/api/strategy').then(function(r){return r.json();}).then(paintStrategy).catch(function(){});
+  if(INIT&&INIT.strategy){paintStrategy(INIT.strategy);paintTradeBanner(INIT.strategy);return;}
+  fetch('/api/strategy').then(function(r){return r.json();}).then(function(d){paintStrategy(d);paintTradeBanner(d);}).catch(function(){});
+}
+function paintTradeBanner(d){
+  if(!d)return;
+  var ip=d.ipo||{},mp=(d.plan||{}).monday_plan||{};
+  var sells=mp.step1_sell||[],stops=mp.risk_rules||[];
+  var h='';
+  // IPO alert
+  if(ip.name)h+='<div class="trade-alert red"><b class="blink">⚠ IPO</b> '+ip.name+'('+ip.code+') '+ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · 资金优先</div>';
+  // sell plan
+  if(sells.length){
+    var sb=sells.map(function(b){return b.shares.toLocaleString()+'@'+b.price;}).join(' → ');
+    h+='<div class="trade-alert amber"><b>📋 周一减仓</b> '+sb+' | 14:45无成交则市价出5000</div>';
+  }
+  // risk
+  if(stops.length)h+='<div class="trade-alert red"><b>🛑 停手</b> '+stops.join(' | ')+'</div>';
+  $('#trade_banner').innerHTML=h;
 }
 
-// ── flow ──
+// flow (includes holdings summary)
 function loadFlow(){
+  // holdings summary
+  var ha=INIT&&INIT.holding_analysis, hh=INIT&&INIT.holdings;
+  if(ha&&ha.length){
+    var tp=0,tv=0;ha.forEach(function(p){tp+=p.pnl_amount;tv+=p.market_value;});
+    var ta=hh?hh.total_asset:(tv+1143),cash=hh?hh.cash:1143;
+    var r=((tv)/Math.max(ta,1)*100).toFixed(1);
+    $('#flow_holdings').innerHTML=
+      '<div class="info"><div class="n">¥'+ta.toLocaleString()+'</div><div class="l">总资产</div></div>'+
+      '<div class="'+(tp>=0?'sell':'buy')+'"><div class="n">'+(tp>=0?'+':'')+Math.round(tp).toLocaleString()+'</div><div class="l">浮动盈亏</div></div>'+
+      '<div class="info"><div class="n">'+r+'%</div><div class="l">仓位</div></div>'+
+      '<div class="info"><div class="n">¥'+cash.toFixed(0)+'</div><div class="l">可用</div></div>';
+    $('#flow_positions').innerHTML='<div class="card"><h2>📋 持仓明细</h2>'+ha.map(function(p){
+      return'<div class="pr"><div class="r '+(p.pnl_pct<0?'buy':'sell')+'" style="border-left-color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'"><span class="k">'+p.name+' <small>'+p.shares.toLocaleString()+'股 @¥'+p.cost.toFixed(2)+'</small></span><span class="v" style="color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'">'+(p.pnl_pct>=0?'+':'')+p.pnl_pct.toFixed(2)+'%</span></div></div>';
+    }).join('')+'</div>';
+  }
+  // fund flow data
   $('#flow_sh089').innerHTML='<div class="r"><span class="k">7/17主力</span><span class="v" style="color:var(--red)">-2.16亿</span></div><div class="r"><span class="k">超大单</span><span class="v">-1.66亿</span></div><div class="r"><span class="k">散户</span><span class="v">+1.61亿</span></div>';
   $('#flow_main_vs').innerHTML='<div class="r"><span class="k">主力5日</span><span class="v" style="color:var(--red)">-9.62亿</span></div><div class="r"><span class="k">主力20日</span><span class="v" style="color:var(--red)">-31.75亿</span></div><div class="r"><span class="k">7/17占比</span><span class="v">主力14%/散户36%</span></div>';
   $('#flow_trend').innerHTML='<div class="r"><span class="k">7/13</span><span class="v" style="color:var(--red)">-3.71亿</span></div><div class="r"><span class="k">7/14</span><span class="v" style="color:var(--red)">-1.65亿</span></div><div class="r"><span class="k">7/15</span><span class="v" style="color:var(--red)">-1.52亿</span></div><div class="r"><span class="k">7/16</span><span class="v" style="color:var(--red)">-1.13亿</span></div><div class="r"><span class="k">7/17</span><span class="v" style="color:var(--red)">-2.16亿</span></div>';
@@ -346,43 +410,46 @@ function loadFlow(){
   $('#flow_sector').innerHTML='<div class="r"><span class="k">电力设备</span><span class="v" style="color:var(--red)">-59.51亿</span></div><div class="r"><span class="k">电网设备</span><span class="v" style="color:var(--red)">-11.24亿</span></div><div class="r"><span class="k">沪深300</span><span class="v">-3.05%</span></div>';
 }
 
-// ── briefing ──
+// briefing
 function renderMD(md){
   if(!md)return'';
   var h=md;
-  // tables
   h=h.replace(/^\|(.+)\|$/gm,function(m){
-    if(/---/.test(m))return'</tbody></table>';
+    if(m.indexOf('---')>=0)return'</tbody></table>';
     var cells=m.split('|').filter(function(c){return c.trim();});
     return'<tr>'+cells.map(function(c){var t=c.trim();if(t.indexOf('**')===0&&t.lastIndexOf('**')===t.length-2)return'<td><b>'+t.slice(2,-2)+'</b></td>';return'<td>'+t+'</td>';}).join('')+'</tr>';
   });
-  h=h.replace(/((?:<tr>.*?<\/tr>\n?)+)/g,'<table>$1</table>');
+  h=h.replace(/(<tr>.*?<\/tr>\n?)+/g,'<table>$&</table>');
   h=h.replace(/<tr>---<\/tr>/g,'');
-  // headings
   h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
   h=h.replace(/^## (.+)$/gm,'<h2>$1</h2>');
   h=h.replace(/^# (.+)$/gm,'<h1>$1</h1>');
-  // bold
   h=h.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
-  // blockquote
   h=h.replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>');
-  // hr
   h=h.replace(/^---$/gm,'<hr>');
-  // lists
   h=h.replace(/^- (.+)$/gm,'<li>$1</li>');
   h=h.replace(/((?:<li>.*?<\/li>\n?)+)/g,'<ul>$1</ul>');
-  // links
   h=h.replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>');
-  // breaks
   h=h.replace(/\n\n/g,'<br>');
   return h;
 }
 function paintBriefing(b){
   if(!b)return;
-  $('#brief_content').innerHTML='<div class="card">'+renderMD(b.full_md||b.title||'')+'</div>';
+  var md=b.full_md||b.title||'';
+  // split into title + sections
+  var parts=md.split(/\n## /);
+  var title=renderMD(parts[0]);
+  var sections=parts.slice(1).map(function(s){return renderMD('## '+s);});
+  var h='<div class="card" style="margin-bottom:6px">'+title+'</div>';
+  if(sections.length){
+    h+='<div class="grid2">';
+    sections.forEach(function(s){h+='<div class="card">'+s+'</div>';});
+    h+='</div>';
+  }
+  $('#brief_content').innerHTML=h;
 }
 
-// ── sheet ──
+// sheet
 function openStock(code){
   var sig=INIT&&INIT.signal;if(!sig)return;
   var tmap={buy_core:'主仓',buy_swing:'波段',avoid:'回避'};var tier='',entry=null,list=[];
@@ -400,7 +467,7 @@ function openStock(code){
   var idx=sorted.findIndex(function(o){return o.code===code;});
   var nb=sorted.slice(Math.max(0,idx-2),idx+3);
   $('#d_neighbors').innerHTML=nb.map(function(o){
-    return'<div class="srow '+(o.score>=0?'pos':'neg')+'"'+(o.code===code?' style="outline:1px solid var(--acc)"':'')+'><span>'+(o.name||o.code)+'</span><span class="sc">'+fmtSc(o.score)+'</span></div>';
+    return'<div class="srow"'+(o.code===code?' style="outline:1px solid var(--acc)"':'')+'><span class="nm">'+(o.name||o.code)+'</span><span class="sc">'+fmtSc(o.score)+'</span></div>';
   }).join('');
   $('#d_ctx').innerHTML=entry.reg_20d!=null?'<div class="pr"><div class="r"><span class="k">20日预测</span><span class="v">'+(entry.reg_20d*100).toFixed(1)+'%</span></div></div>':'';
   $('#sheet').classList.add('on');
@@ -408,18 +475,18 @@ function openStock(code){
 document.getElementById('d_close').onclick=function(){$('#sheet').classList.remove('on');};
 document.getElementById('sheet_bg').onclick=function(){$('#sheet').classList.remove('on');};
 document.addEventListener('click',function(e){
-  var t=e.target.closest('.srow[data-code]');if(!t)return;
+  var t=e.target.closest('.srow');if(!t)return;
   var code=t.getAttribute('data-code');if(code)openStock(code);
 });
 
-// ── realtime ──
+// realtime (only update price b elements, not signal rows)
 function fetchRT(){
-  var els=document.querySelectorAll('[data-code]');
+  var els=document.querySelectorAll('#d_pr[data-code]');
   var codes=Array.from(new Set(Array.from(els).map(function(el){return el.getAttribute('data-code');})));
   if(!codes.length)return;
   for(var i=0;i<codes.length;i+=80){
     var batch=codes.slice(i,i+80).map(function(c){return(c.startsWith('SH')?'sh':'sz')+c.slice(2);}).join(',');
-    (function(batchCodes,batchIdx){
+    (function(batchCodes){
       fetch('https://qt.gtimg.cn/q='+batch).then(function(r){return r.text();}).then(function(txt){
         var lines=txt.split('\n');
         lines.forEach(function(line){
@@ -427,19 +494,19 @@ function fetchRT(){
           var rc=m[1],fc=(rc.startsWith('sh')?'SH':'SZ')+rc.slice(2).toUpperCase();
           var vs=m[2].split('~');
           var pr=parseFloat(vs[3]),ch=parseFloat(vs[32])||0;
-          RT[fc]={pr:pr?pr.toFixed(2):'—',ch:ch?((ch>0?'+':'')+ch.toFixed(2)+'%'):'—',cls:ch>0?'pos':ch<0?'neg':''};
+          RT[fc]={pr:pr?pr.toFixed(2):'—',ch:ch?((ch>0?'+':'')+ch.toFixed(2)+'%'):'—'};
         });
-        // update all refs
-        document.querySelectorAll('[data-code]').forEach(function(el){
+        // only update designated price elements
+        document.querySelectorAll('#d_pr[data-code]').forEach(function(el){
           var c=el.getAttribute('data-code');if(RT[c])el.textContent=RT[c].pr;
         });
       }).catch(function(){});
-    })(batch,i);
+    })(batch);
   }
 }
 setInterval(fetchRT,30000);fetchRT();
 
-// ── init ──
+// init
 function tryInit(d){
   INIT=d;
   if(d.status)paintStatus(d.status);
@@ -447,6 +514,7 @@ function tryInit(d){
   if(d.perf)paintPerf(d.perf);
   if(d.briefing)paintBriefing(d.briefing);
   if(d.strategy)paintStrategy(d.strategy);
+  if(d.strategy)paintTradeBanner(d.strategy);
   if(d.holding_analysis||d.holdings)paintHoldings();
   loadFlow();
 }
@@ -459,10 +527,8 @@ fetch('init.json').then(function(r){return r.json();}).then(tryInit).catch(funct
   }).catch(function(){});
 });
 
-// clock updating
 setInterval(function(){
-  var d=new Date();
-  $('#clk').textContent=d.toLocaleTimeString('zh-CN',{hour12:false});
+  $('#clk').textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false});
 },10000);
 
 </script>
