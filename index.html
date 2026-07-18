@@ -53,6 +53,8 @@ body{display:flex;flex-direction:column;height:100dvh}
   .side .item.on{background:var(--card);color:var(--acc);font-weight:700;
     animation:sideGlow 2.5s ease-in-out infinite}
   @keyframes sideGlow{0%,100%{box-shadow:inset 0 0 0 1px rgba(121,192,255,.08)}40%{box-shadow:inset 0 0 0 2px rgba(121,192,255,.35),0 0 12px rgba(121,192,255,.12)}70%{box-shadow:inset 0 0 0 1px rgba(121,192,255,.2),0 0 6px rgba(121,192,255,.06)}}
+  .main{flex:1;height:calc(100dvh - 40px);overflow-y:auto;padding:10px}
+}
 /* pos rows */
 .pr{display:flex;flex-direction:column;gap:4px}
 .pr .r{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;
@@ -148,12 +150,13 @@ body{display:flex;flex-direction:column;height:100dvh}
 @keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,.4);border-color:rgba(248,81,73,.3)}50%{box-shadow:0 0 8px 2px rgba(248,81,73,.2);border-color:rgba(248,81,73,.6)}}
 @keyframes borderPulse{0%,100%{border-color:rgba(248,81,73,.25)}50%{border-color:rgba(248,81,73,.7)}}
 @keyframes bgFlash{0%,100%{background:rgba(248,81,73,.04)}50%{background:rgba(248,81,73,.12)}}
+@keyframes waveFlash{0%,100%{background:rgba(248,81,73,.03);box-shadow:none}18%{background:rgba(248,81,73,.14);box-shadow:0 0 6px rgba(248,81,73,.2)}36%{background:rgba(248,81,73,.04);box-shadow:none}}
 .trade-alert b{white-space:nowrap}
 
 /* spotlight card */
 .spotlight{border-color:var(--red)!important;animation:glowPulse 3s infinite}
 .spotlight .sitem{padding:6px 10px;margin:3px 0;border-radius:6px;font-size:12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;line-height:1.4;border-left:3px solid transparent}
-.spotlight .sitem.crit{background:rgba(248,81,73,.06);border-left-color:var(--red);animation:bgFlash 3s infinite}
+.spotlight .sitem.crit{background:rgba(248,81,73,.04);border-left-color:var(--red);animation:waveFlash 4s ease-in-out infinite}
 .spotlight .sitem.warn{background:rgba(210,153,34,.04);border-left-color:var(--amber)}
 .spotlight .sitem .stag{flex-shrink:0;font-size:12px;margin-top:1px}
 .spotlight .sitem .stxt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -346,9 +349,10 @@ body{display:flex;flex-direction:column;height:100dvh}
       card.style.display='block';
       cnt.textContent=crit.length+'条';
       var h='';
-      crit.forEach(function(c){
+      crit.forEach(function(c,i){
         var fn=c.type==='news'?'openNewsByIdx('+c.idx+')':'openSentByIdx('+c.idx+')';
-        h+='<div class="sitem crit" onclick="'+fn+'"><span class="stag">🔴</span><span class="stxt">'+c.title+'</span></div>';
+        var delay=(i*0.55).toFixed(2);
+        h+='<div class="sitem crit" onclick="'+fn+'" style="animation-delay:'+delay+'s"><span class="stag">🔴</span><span class="stxt">'+c.title+'</span></div>';
       });
       items.innerHTML=h;
     }
@@ -744,19 +748,6 @@ function fetchRT(){
   }
 }
 setInterval(fetchRT,30000);fetchRT();
-
-// init
-function tryInit(d){
-  INIT=d;
-  if(d.status)paintStatus(d.status);
-  if(d.signal)paintSignal(d.signal);
-  if(d.perf)paintPerf(d.perf);
-  if(d.briefing)paintBriefing(d.briefing);
-  if(d.strategy)paintStrategy(d.strategy);
-  if(d.strategy)paintTradeBanner(d.strategy);
-  if(d.holding_analysis||d.holdings)paintHoldings();
-  loadFlow();
-}
 
 fetch('init.json').then(function(r){return r.json();}).then(tryInit).catch(function(){
   loadStatus();loadSignal();loadFlow();loadPerf();
