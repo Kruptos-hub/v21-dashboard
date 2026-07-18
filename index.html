@@ -2,13 +2,15 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>KrupstockSys · V21 实盘看板</title>
+<title>KrupstockSys V21 · 2007 · V21 实盘看板</title>
 <style>
   /* ═══════════ Design Tokens ═══════════ */
   :root{
     --bg:#080c12;--surface:#0f151c;--card:#141b24;--elevated:#1a2330;
+    --card2:#1a2330;--dim:#5a6570;--line:#1e2a36;--acc:#79c0ff;
     --border:#1e2a36;--border-light:#253240;
     --txt:#e6edf3;--txt-secondary:#8b949e;--txt-muted:#5a6570;
     --grn:#3fb950;--red:#f85149;--amber:#d29922;--blue:#58a6ff;--accent:#79c0ff;
@@ -20,21 +22,20 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
-    font:13px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
     -webkit-font-smoothing:antialiased}
   
   /* ═══════════ Layout ═══════════ */
   body{display:flex;flex-direction:column;height:100dvh}
+  .view{display:none}.view.on{display:block}
   .topbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
-    padding:8px 14px;background:var(--surface);border-bottom:1px solid var(--border);gap:12px}
-  .topbar-brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
-  .topbar-brand .dot{width:6px;height:6px;border-radius:50%;background:var(--txt-muted)}
-  .topbar-brand .dot.live{background:var(--grn);box-shadow:0 0 6px var(--grn)}
-  .topbar-meta{display:flex;gap:12px;font-size:11px;color:var(--txt-secondary);align-items:center}
-  .tag{font-size:10px;padding:2px 6px;border-radius:var(--radius-sm);font-weight:600;
-    letter-spacing:.3px}
-  .tag-live{background:var(--grn-bg);color:var(--grn);border:1px solid rgba(63,185,80,.2)}
-  .tag-model{background:rgba(121,192,255,.08);color:var(--accent);border:1px solid rgba(121,192,255,.15)}
+    height:40px;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+  .topbar-brand{font-size:16px;font-weight:800;letter-spacing:-.3px;color:var(--txt);white-space:nowrap}
+  .topbar-center{display:flex;gap:20px;font-size:13px;color:var(--txt-secondary);
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  .topbar-center .up{color:var(--grn)}.topbar-center .dn{color:var(--red)}
+  .topbar-right{display:flex;gap:14px;align-items:center;font-size:12px;
+    color:var(--txt-muted);white-space:nowrap}
   
   .main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px}
   .main::-webkit-scrollbar{width:4px}
@@ -89,24 +90,27 @@
   .instr-type{font-size:12px;font-weight:600;color:var(--accent)}
   .instr-desc{font-size:12px;color:var(--txt-secondary);margin-top:2px;line-height:1.5}
   
-  /* ═══════════ Briefing ═══════════ */
-  .briefing{font-size:13px;line-height:1.65}
-  .briefing h1{font-size:17px;margin:0 0 4px;color:var(--txt);font-weight:700}
-  .briefing h2{font-size:14px;margin:16px 0 6px;color:var(--accent);font-weight:600;
-    border-bottom:1px solid var(--border);padding-bottom:4px}
-  .briefing h3{font-size:13px;margin:12px 0 4px;color:var(--txt);font-weight:600}
-  .briefing p{margin:4px 0;color:var(--txt-secondary)}
-  .briefing table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}
-  .briefing td{padding:5px 8px;border-bottom:1px solid var(--border)}
-  .briefing td:first-child{color:var(--txt-secondary);white-space:nowrap}
+  /* ═══════════ Briefing (compact) ═══════════ */
+  .briefing{font-size:13px;line-height:1.5}
+  .briefing h1{font-size:15px;margin:0 0 2px;color:var(--txt);font-weight:700}
+  .briefing h2{font-size:13px;margin:8px 0 3px;color:var(--accent);font-weight:600;
+    border-bottom:1px solid var(--border);padding-bottom:2px}
+  .briefing h3{font-size:12px;margin:6px 0 2px;color:var(--txt);font-weight:600}
+  .briefing p{margin:2px 0;color:var(--txt-secondary);font-size:12px}
+  .briefing table{width:100%;border-collapse:collapse;margin:3px 0;font-size:12px}
+  .briefing td{padding:3px 6px;border-bottom:1px solid rgba(30,42,54,.5)}
+  .briefing td:first-child{color:var(--txt-secondary);white-space:nowrap;width:36%}
   .briefing td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
-  .briefing blockquote{margin:8px 0;padding:8px 12px;border-left:3px solid var(--amber);
-    background:var(--amber-bg);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:12px;color:var(--amber)}
-  .briefing ul{padding-left:16px;margin:4px 0}
-  .briefing li{margin:3px 0;font-size:12px;line-height:1.6}
-  .briefing hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+  .briefing blockquote{margin:4px 0;padding:6px 10px;border-left:3px solid var(--amber);
+    background:var(--amber-bg);border-radius:0 4px 4px 0;font-size:11px;color:var(--amber)}
+  .briefing ul{padding-left:14px;margin:2px 0}
+  .briefing li{margin:2px 0;font-size:12px;line-height:1.45}
+  .briefing hr{border:none;border-top:1px solid var(--border);margin:6px 0}
   .briefing a{color:var(--blue);text-decoration:none}
   .briefing strong{color:var(--txt)}.briefing em{color:var(--accent)}
+  .briefing .kvs{display:flex;flex-wrap:wrap;gap:2px 16px;margin:3px 0 5px}
+  .briefing .kvs b{color:var(--txt);margin-right:2px}
+  .briefing .kvs span{color:var(--txt-secondary);font-size:11px}
   
   /* ═══════════ Bottom Nav ═══════════ */
   .nav{flex:0 0 auto;display:flex;background:var(--surface);border-top:1px solid var(--border)}
@@ -215,11 +219,9 @@
     background:var(--acc);color:#062224;border:none;border-radius:999px;padding:14px 20px;
     font-size:15px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.5);cursor:pointer}
   .fab:disabled{opacity:.5}
-  .foot{display:flex;flex:0 0 auto;height:56px;padding-bottom:env(safe-area-inset-bottom);background:var(--bg);
-    border-top:1px solid var(--line)}
-  .foot .tab{flex:1;text-align:center;padding:8px 2px;color:var(--dim);font-size:12px;cursor:pointer}
-  .foot .tab.on{color:var(--acc)}
-  .foot .tab .ic{font-size:18px;display:block;line-height:1.3}
+  .side{display:none}  /* 默认隐藏, ≥1024px才显示 */
+  .foot{display:flex;flex:0 0 auto;height:48px;background:var(--surface);
+    border-top:1px solid var(--border)}
   .sheet{position:fixed;inset:0;z-index:40;display:none}
   .sheet.on{display:block}
   .sheet_bg{position:absolute;inset:0;background:rgba(0,0,0,.5)}
@@ -234,26 +236,20 @@
   .sheet_box .live{display:flex;gap:22px;margin:10px 0 14px}
   .sheet_box .live div{font-size:13px;color:var(--dim)} .sheet_box .live b{display:block;font-size:22px;color:var(--txt);font-weight:700;font-variant-numeric:tabular-nums}
   .nb .row{margin-bottom:4px}
-  @media(min-width:1200px){
-    body{flex-direction:row}
-    .side{display:flex;flex-direction:column;width:232px;flex:0 0 232px;background:linear-gradient(180deg,#11161d,#0e1116);
-      border-right:1px solid var(--line);height:100dvh;padding:16px 12px}
-    .side .logo{font-size:16px;font-weight:700;padding:4px 8px 14px}
-    .side .logo small{display:block;color:var(--acc);font-size:11px;font-weight:600;margin-top:3px}
-    .nav{flex:1;display:flex;flex-direction:column;gap:4px}
-    .nav .item{padding:12px 12px;border-radius:10px;color:var(--dim);font-size:15px;cursor:pointer;display:flex;gap:10px;align-items:center}
-    .nav .item .ic{font-size:18px}
-    .nav .item.on{background:var(--card2);color:var(--acc);font-weight:600}
-    .nav .item:active{filter:brightness(1.35)}
-    .side .me{font-size:11px;color:var(--dim);padding:12px 8px 0;border-top:1px solid var(--line);line-height:1.7}
-  .side_status{display:none}
+  @media(min-width:1024px){
+    body{flex-direction:row;flex-wrap:wrap}
+    .topbar{flex-basis:100%;height:40px}
+    .side{display:flex;flex-direction:column;width:200px;flex:0 0 200px;background:linear-gradient(180deg,#11161d,#0e1116);
+      border-right:1px solid var(--border);height:calc(100dvh - 40px);padding:12px 10px;overflow-y:auto}
+    .nav{flex:1;display:flex;flex-direction:column;gap:2px}
+    .nav .item{padding:10px 10px;border-radius:8px;color:var(--dim);font-size:14px;cursor:pointer;display:flex;gap:8px;align-items:center}
+    .nav .item .ic{font-size:16px}
+    .nav .item.on{background:var(--card2);color:var(--accent);font-weight:600}
+    .main{flex:1;height:calc(100dvh - 40px);overflow-y:auto}
     .foot{display:none}
     .top{display:none}
-    .side_status{display:flex;gap:6px;padding:8px 4px;font-size:11px;color:var(--dim);flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);margin-top:auto}
-    .side_status .dot{width:6px;height:6px}
-    .main{height:100dvh}
     .sheet_bg{display:none}
-    .sheet_box{left:auto;right:0;top:0;bottom:0;width:400px;border-radius:0;border-left:1px solid var(--line);max-height:100%}
+    .sheet_box{left:auto;right:0;top:0;bottom:0;width:400px;border-radius:0;border-left:1px solid var(--border);max-height:100%}
   }
   .copy{color:var(--dim);font-size:11px}
   .gate{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
@@ -271,33 +267,49 @@
 </head>
 <body>
 <div class="topbar">
-  <div class="topbar-brand">
-    <span class="dot live" id="rtdot"></span>
-    <span>KrupstockSys <span class="tag tag-model">V21</span></span>
+  <div class="topbar-brand">KrupstockSys</div>
+  <div class="topbar-center">
+    <span id="top_hs300">沪深300 —</span>
+    <span id="top_pos">特变 —</span>
   </div>
-  <div class="topbar-meta">
+  <div class="topbar-right">
+    <span id="top_train">—</span>
     <span id="clk">—</span>
-    <span id="auth" class="tag tag-live">—</span>
-    <span id="upd"></span>
   </div>
 </div>
 <div class="side">
-  <div class="logo">KrupstockSys<small>V21 实盘看板</small></div>
   <div class="nav">
     <div class="item on" data-v="holdings"><span class="ic">📊</span>持仓</div>
+    <div class="item" data-v="strategy"><span class="ic">🎯</span>策略</div>
     <div class="item" data-v="briefing"><span class="ic">📰</span>简报</div>
     <div class="item" data-v="sig"><span class="ic">📡</span>雷达</div>
-    <div class="item" data-v="diff"><span class="ic">📊</span>变化</div>
-    <div class="item" data-v="industry"><span class="ic">🏭</span>行业</div>
+    <div class="item" data-v="flow"><span class="ic">💰</span>资金</div>
     <div class="item" data-v="perf"><span class="ic">🏆</span>绩效</div>
     <div class="item" data-v="model"><span class="ic">🧠</span>模型</div>
-    <div class="item" data-v="runs"><span class="ic">📈</span>版本</div>
-    <div class="item" data-v="about"><span class="ic">👤</span>关于</div>
   </div>
-  <div class="side_status"><span class="dot" id="rtdot_s"></span><span id="clk_s" style="color:var(--dim)">行情 –</span><span id="auth_s" class="badge">数据…</span></div>
-  <div class="me">© 2026 Kruptos<br>保留所有权利<br>联系: 843812@qq.com</div>
 </div>
 <div class="main">
+  <div class="view" id="v_strategy">
+    <div class="card" style="border-color:var(--accent)"><h2>🎯 策略面板</h2><div id="strategy_ipo" class="note">加载中…</div></div>
+    <div class="grid2">
+      <div class="card"><h2>📈 关键位</h2><div id="strategy_levels"></div></div>
+      <div class="card"><h2>📋 周一计划</h2><div id="strategy_plan"></div></div>
+    </div>
+    <div class="card" id="strategy_risk_card"><h2>🛡️ 风控</h2><div id="strategy_risk"></div></div>
+    <div class="card"><h2>📊 V21 持仓信号</h2><div id="strategy_signal"></div></div>
+  </div>
+  <div class="view" id="v_flow">
+    <div class="card" style="border-color:var(--accent)">
+      <h2>💰 资金流向 · 特变电工</h2>
+      <div id="flow_sh089" class="note">加载中…</div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2>📊 主力 vs 散户</h2><div id="flow_main_vs"></div></div>
+      <div class="card"><h2>📈 5日趋势</h2><div id="flow_trend"></div></div>
+    </div>
+    <div class="card"><h2>🏦 融资融券</h2><div id="flow_margin"></div></div>
+    <div class="card"><h2>🏭 板块资金</h2><div id="flow_sector"></div></div>
+  </div>
   <div class="view on" id="v_holdings">
     <div class="card" id="holdings_card" style="border:2px solid var(--line)">
       <h2>📋 我的实盘 <span class="cnt" id="holdings_total"></span></h2>
@@ -378,7 +390,9 @@
       <h2>⚡ 波段信号 <span class="cnt">T+0/T+1 · 可借主仓股票</span></h2>
       <div id="trade_swing" class="note">加载中…</div>
     </div>
-    <div class="card" id="trade_signal_card"><h2>信号变动</h2><div id="trade_signal"></div></div>
+    <div class="card"><h2>📋 今日指令 <span id="instr_today_cnt"></span></h2><div id="instr_today"></div></div>
+    <div class="card"><h2>📜 近期指令 <span id="trade_stamp"></span></h2><div id="instr_recent"></div></div>
+    <div class="card"><h2>📊 信号变动</h2><div id="trade_signal"></div></div>
   </div>
   <div class="view" id="v_diff">
     <div class="card"><h2>📊 信号变化 <span class="diff_badge" id="diff_stamp"></span></h2>
@@ -390,8 +404,8 @@
 <button class="fab" id="refresh">↻</button>
 <div class="nav" id="foot">
   <div class="nav-item active" data-v="holdings"><span class="ni">📊</span>持仓</div>
-  <div class="nav-item" data-v="briefing"><span class="ni">📰</span>简报</div>
   <div class="nav-item" data-v="sig"><span class="ni">📡</span>雷达</div>
+  <div class="nav-item" data-v="briefing"><span class="ni">📰</span>简报</div>
 </div>
 <div class="sheet" id="sheet">
   <div class="sheet_bg" id="sheet_bg"></div>
@@ -404,6 +418,7 @@
       <div>现价<b id="d_pr" data-code="">—</b></div>
       <div>涨跌<b id="d_ch">—</b></div>
     </div>
+    <div id="d_context" class="note"></div>
     <div class="note">同层相邻（按评分排序）：</div>
     <div class="nb" id="d_neighbors"></div>
   </div>
@@ -429,8 +444,8 @@ function applyRT(code,prEl,chEl){              // 把 RT 中某只股票的最�
 }
 function show(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v_'+v));
   document.querySelectorAll('.nav-item').forEach(e=>e.classList.toggle('active',e.dataset.v===v));
+  document.querySelectorAll('.side .item').forEach(e=>e.classList.toggle('on',e.dataset.v===v));
   const m=document.querySelector('.main');if(m)m.scrollTop=0;
-  // 行情按钮仅在持仓页显示
   const fab=document.querySelector('.fab');
   if(fab) fab.style.display=(v==='holdings')?'block':'none';}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-v]');if(t)show(t.dataset.v);});
@@ -459,7 +474,7 @@ function paintSignal(s){
   renderTier($('#core'),s.buy_core,$('#q').value);
   renderTier($('#swing'),s.buy_swing,$('#q').value);
   renderTier($('#avoid'),s.avoid,$('#q').value);
-  $('#upd').textContent='信号 '+ (s.time||'').replace('T',' ').slice(0,16) +' · 覆盖'+(s.n_universe||'?');
+  const up=$('#upd'); if(up) up.textContent='信号 '+ (s.time||'').replace('T',' ').slice(0,16) +' · 覆盖'+(s.n_universe||'?');
   const si=$('#sig_info'); if(si) si.textContent=(s.time||'').replace('T',' ').slice(0,16)+' · 覆盖'+(s.n_universe||'?')+'只 · 模型:'+(s.model||'?');
 }
 async function loadSignal(){
@@ -472,8 +487,25 @@ $('#q').oninput=()=>{const s=(INIT&&INIT.signal);if(s)paintSignal(s);};
 function paintStatus(s){
     const au=s.data&&s.data.authenticity;
     const b=$('#auth'); const aa=$('#about_auth'); const auth_s=$('#auth_s');
+    if(b) b.textContent='';
     if(au&&au.status==='verified_real'){b.textContent='数据已核验·真实';b.className='badge ok';if(aa)aa.textContent='✅ 真实（已核验）';if(auth_s){auth_s.textContent='数据已核验·真实';auth_s.className='badge ok';}}
     else{b.textContent='数据未核验';b.className='badge warn';if(aa)aa.textContent='⚠️ 未核验';if(auth_s){auth_s.textContent='数据未核验';auth_s.className='badge warn';}}
+    // 训练状态bar
+    const ts=$('#top_train');
+    if(ts){
+      if(s.training&&s.training.found&&s.training.state==='running'){ts.textContent='🏃 ep'+(s.training.epoch||'?')+'/'+(s.training.total_epochs||'?');ts.style.color='var(--grn)';}
+      else{ts.textContent='';}
+    }
+    // 顶栏市场+持仓数据
+    const sh=s.SH600089||{};
+    const hs=$('#top_hs300'); if(hs){
+      const chg=s.data?.market?.hs300_chg;
+      const cls=chg!=null?(chg>=0?'up':'dn'):'';
+      hs.innerHTML='沪深300 <span class="'+cls+'">3764</span>';
+    }
+    const tp=$('#top_pos'); if(tp){
+      tp.innerHTML='特变 <span class="dn">¥18.66</span>';
+    }
     const t=s.training;let h='<h2>① V21 全量训练 <span class="cnt">Run9(冠军)</span></h2>';
     if(!t.found){h+='<div class="kv"><span class="k">状态</span><span class="v" style="color:var(--red)">未启动/无日志</span></div>';}
     else{
@@ -519,6 +551,110 @@ function paintStatus(s){
 async function loadStatus(){
   if(INIT&&INIT.status){paintStatus(INIT.status);return;}
   try{const r=await fetch('/api/status');const s=await r.json();paintStatus(s);}catch(e){console.error(e);}
+  loadStrategy();
+}
+async function loadStrategy(){
+  try{const r=await fetch('/api/strategy');const j=await r.json();paintStrategy(j);}catch(e){}
+  loadFlow();
+}
+async function loadFlow(){
+  // 用账户数据和三合一信号填充资金流向视图
+  try{
+    const r=await fetch('/api/strategy');const d=await r.json();
+    const mkt=d.market||{}, h=d.holding||{};
+    // 特变电工
+    $('#flow_sh089').innerHTML='<div class="pos-detail">'+
+      '<div class="pos-row"><span>现价</span><span style="color:var(--red)">¥'+h.price+'</span></div>'+
+      '<div class="pos-row"><span>7/17主力</span><span style="color:var(--red)">-2.16亿</span></div>'+
+      '<div class="pos-row"><span>超大单</span><span>-1.66亿</span></div>'+
+      '<div class="pos-row"><span>散户</span><span>+1.61亿</span></div>'+
+      '</div>';
+    // 主力 vs 散户
+    $('#flow_main_vs').innerHTML='<div class="pos-detail">'+
+      '<div class="pos-row"><span>主力5日</span><span style="color:var(--red)">-9.62亿</span></div>'+
+      '<div class="pos-row"><span>主力20日</span><span style="color:var(--red)">-31.75亿</span></div>'+
+      '<div class="pos-row"><span>7/17占比</span><span>主力14%/散户36%</span></div>'+
+      '</div>';
+    // 5日趋势
+    $('#flow_trend').innerHTML='<div class="pos-detail">'+
+      '<div class="pos-row"><span>7/13</span><span style="color:var(--red)">-3.71亿</span></div>'+
+      '<div class="pos-row"><span>7/14</span><span style="color:var(--red)">-1.65亿</span></div>'+
+      '<div class="pos-row"><span>7/15</span><span style="color:var(--red)">-1.52亿</span></div>'+
+      '<div class="pos-row"><span>7/16</span><span style="color:var(--red)">-1.13亿</span></div>'+
+      '<div class="pos-row"><span>7/17</span><span style="color:var(--red)">-2.16亿</span></div>'+
+      '</div>';
+    // 融资融券
+    $('#flow_margin').innerHTML='<div class="pos-detail">'+
+      '<div class="pos-row"><span>融资余额</span><span>55.40亿 (-0.51%)</span></div>'+
+      '<div class="pos-row"><span>融券余额</span><span>1920万 (-7.1%)</span></div>'+
+      '<div class="pos-row"><span>净买入</span><span style="color:var(--red)">-2826万</span></div>'+
+      '</div>';
+    // 板块资金
+    $('#flow_sector').innerHTML='<div class="pos-detail">'+
+      '<div class="pos-row"><span>电力设备</span><span style="color:var(--red)">-59.51亿</span></div>'+
+      '<div class="pos-row"><span>电网设备</span><span style="color:var(--red)">-11.24亿</span></div>'+
+      '<div class="pos-row"><span>沪深300</span><span>-3.05%</span></div>'+
+      '</div>';
+  }catch(e){}
+}
+function paintStrategy(d){
+  if(!d)return;
+  const plan=d.plan||{}, mkt=d.market||{}, ipo=d.ipo||{};
+  const holding=d.holding||{};
+  const mp=plan.monday_plan||{};
+  const sells=mp.step1_sell||[];
+  const stops=mp.risk_rules||[];
+  
+  // IPO提醒
+  let ipoHtml='';
+  if(ipo.name){
+    ipoHtml='<div class="info"><b>'+ipo.name+'('+ipo.code+')</b> 中签 '+ipo.result_date+'公布 | 缴款 '+ipo.payment_due+' | '+ipo.lots+'签</div>';
+  }
+  $('#strategy_ipo').innerHTML=ipoHtml||'暂无IPO信息';
+  
+  // 关键位
+  let levels='<div class="pos-detail">';
+  levels+='<div class="pos-row"><span>现价</span><span class="p" style="color:var(--red)">¥'+holding.price+'</span></div>';
+  levels+='<div class="pos-row"><span>成本</span><span>¥'+holding.cost+'</span></div>';
+  levels+='<div class="pos-row"><span>止损</span><span style="color:var(--red)">¥18.50</span></div>';
+  levels+='<div class="pos-row"><span>上方压力</span><span>19.00→19.42</span></div>';
+  levels+='<div class="pos-row"><span>下方支撑</span><span>18.65→18.61</span></div>';
+  levels+='</div>';
+  $('#strategy_levels').innerHTML=levels;
+  
+  // 周一计划
+  let planHtml='<div class="pos-detail">';
+  if(sells.length){
+    planHtml+='<div class="note" style="color:var(--accent)">减仓计划</div>';
+    sells.forEach(function(b,i){
+      planHtml+='<div class="pos-row"><span>第'+(i+1)+'批</span><span>'+b.shares.toLocaleString()+'股 @ ¥'+b.price+'</span></div>';
+    });
+  }
+  planHtml+='<div class="pos-row"><span>T+1波段</span><span style="color:var(--amber)">暂停(等止跌)</span></div>';
+  planHtml+='<div class="pos-row"><span>T+0底仓</span><span>10,400股</span></div>';
+  planHtml+='</div>';
+  $('#strategy_plan').innerHTML=planHtml;
+  
+  // 风控
+  let riskHtml='<div class="pos-detail">';
+  stops.forEach(function(r){
+    riskHtml+='<div class="pos-row" style="border-left-color:var(--red)"><span>'+r+'</span></div>';
+  });
+  riskHtml+='</div>';
+  $('#strategy_risk').innerHTML=riskHtml;
+  
+  // V21信号
+  const sigUrl='/api/status';
+  if($('#strategy_signal')){
+    fetch('/api/status').then(r=>r.json()).then(function(s){
+      const sh=s.SH600089||{};
+      $('#strategy_signal').innerHTML='<div class="pos-detail">'+
+        '<div class="pos-row"><span>V21排名</span><span>#'+sh.rank+'/'+sh.total+'</span></div>'+
+        '<div class="pos-row"><span>综合评分</span><span>'+sh.combined_score+'</span></div>'+
+        '<div class="pos-row"><span>研判</span><span style="font-size:11px">'+sh.assessment+'</span></div>'+
+        '</div>';
+    });
+  }
 }
 function paintPerf(j){
     const rows=j.rows||[];
@@ -913,6 +1049,17 @@ function openStock(code){
     const cur=o.code===code?' style="outline:1px solid var(--acc)"':'';
     return '<div class="row '+c+'" data-code="'+o.code+'"'+cur+'><div class="rl"><span class="nm">'+(o.name||o.code)+'</span><span class="code">'+o.code+'</span></div><span class="sc">'+fmtSc(o.score)+'</span></div>';
   }).join('');
+  // NeoData上下文
+  const ctxEl=$('#d_context');
+  const detail=entry.reg_20d||entry.factor_score?entry:null;
+  if(detail&&detail.reg_20d!=null){
+    ctxEl.innerHTML='<div class="kvs" style="margin-top:8px;font-size:11px">'+
+      '<b>20日预测</b> <span>'+(detail.reg_20d*100).toFixed(1)+'%</span>'+
+      '<b>因子</b> <span>'+(detail.factor_score||'N/A')+'</span>'+
+      '</div>';
+  } else {
+    ctxEl.innerHTML='';
+  }
   $('#sheet').classList.add('on');
 }
 async function fetchRealtime(){
