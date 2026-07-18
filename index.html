@@ -218,9 +218,7 @@
     background:var(--acc);color:#062224;border:none;border-radius:999px;padding:14px 20px;
     font-size:15px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.5);cursor:pointer}
   .fab:disabled{opacity:.5}
-  .side{display:none}  /* 默认隐藏, ≥900px才显示 */
-  .foot{display:flex;flex:0 0 auto;height:48px;background:var(--surface);
-    border-top:1px solid var(--border)}
+  .side{display:none}
   @media(min-width:900px){.foot{display:none !important}}
   .sheet{position:fixed;inset:0;z-index:40;display:none}
   .sheet.on{display:block}
@@ -402,11 +400,6 @@
   </div>
 </div>
 <button class="fab" id="refresh">↻</button>
-<div class="nav" id="foot">
-  <div class="nav-item active" data-v="holdings"><span class="ni">📊</span>持仓</div>
-  <div class="nav-item" data-v="sig"><span class="ni">📡</span>雷达</div>
-  <div class="nav-item" data-v="briefing"><span class="ni">📰</span>简报</div>
-</div>
 <div class="sheet" id="sheet">
   <div class="sheet_bg" id="sheet_bg"></div>
   <div class="sheet_box">
@@ -434,9 +427,6 @@
 </div>
 <script>
 var INIT=null;
-// 宽度>900立刻隐藏底栏(双保险)
-if(window.innerWidth>900){var f=document.getElementById('foot');if(f)f.style.display='none';}
-window.addEventListener('resize',function(){var f=document.getElementById('foot');if(f)f.style.display=window.innerWidth>900?'none':'flex';});
 var _rtTimer=null;                             // 实时行情轮询定时器（避免重复创建）
 const RT={};                                   // 中心化实时行情表: RT[code]={pr,ch,cls}
 const $=s=>document.querySelector(s);
@@ -446,7 +436,6 @@ function applyRT(code,prEl,chEl){              // 把 RT 中某只股票的最�
   if(chEl&&r.ch!=null){ chEl.textContent=r.ch; if(r.cls) chEl.className='ch '+r.cls; }
 }
 function show(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v_'+v));
-  document.querySelectorAll('.nav-item').forEach(e=>e.classList.toggle('active',e.dataset.v===v));
   document.querySelectorAll('.side .item').forEach(e=>e.classList.toggle('on',e.dataset.v===v));
   const m=document.querySelector('.main');if(m)m.scrollTop=0;
   const fab=document.querySelector('.fab');
