@@ -183,16 +183,50 @@ body{display:flex;flex-direction:column;height:100dvh}
 </div>
 
 <div class="view" id="v_briefing">
-  <div class="card" style="border-color:var(--amber);margin-bottom:8px">
-    <h2>📡 动态快讯 · 近7日</h2>
-    <div style="font-size:12px;line-height:1.5;max-height:130px;overflow-y:auto">
-      <a href="https://gu.qq.com/sh600089/gp" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--red)">⚠</b> 7/17 收18.66(-1.17%)，5日-6.98%，主力净流出2.16亿</a>
-      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--red)">⚠</b> 7/16 公司：股价短期波动，暂无回购增持计划</a>
-      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--amber)">📌</b> 7/16 公司：经营正常，持续强化核心优势稳健经营</a>
-      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--amber)">🌍</b> Q2北向净流入1580亿，电力设备获800亿+</a>
-      <a href="https://gu.qq.com/sh600089/gp" target="_blank" style="display:block;padding:4px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none"><b style="color:var(--grn)">💹</b> 拟派现金红利0.36元/股，发行10亿可转债</a>
-      <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:4px 0;color:var(--txt2);text-decoration:none"><b style="color:var(--red)">📉</b> 电力设备20日-20.67%，主力净流出59.51亿</a>
+  <div class="card" style="border-color:var(--amber);margin-bottom:8px;overflow:hidden">
+    <h2>📡 动态快讯 · 循环滚动</h2>
+    <div id="ticker_wrap" style="height:78px;overflow:hidden;position:relative">
+      <div id="ticker_inner" style="position:relative;transition:transform .6s ease">
+        <a href="https://gu.qq.com/sh600089/gp" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--red)">⚠</b> 7/17 特变电工收18.66(-1.17%)，5日-6.98%，主力净流出2.16亿</a>
+        <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--red)">⚠</b> 7/16 特变电工：股价短期波动，暂无回购增持计划</a>
+        <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--amber)">📌</b> 7/16 特变电工：经营正常，持续强化核心优势稳健经营</a>
+        <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--amber)">🌍</b> Q2北向净流入1580亿，电力设备获800亿+配置</a>
+        <a href="https://gu.qq.com/sh600089/gp" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--grn)">💹</b> 特变电工拟派现金红利0.36元/股，发行10亿可转债</a>
+        <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:5px 0;color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--red)">📉</b> 电力设备20日-20.67%，主力净流出59.51亿</a>
+        <!-- cloned first 3 for seamless loop -->
+        <a href="https://gu.qq.com/sh600089/gp" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--red)">⚠</b> 7/17 特变电工收18.66(-1.17%)，5日-6.98%，主力净流出2.16亿</a>
+        <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--red)">⚠</b> 7/16 特变电工：股价短期波动，暂无回购增持计划</a>
+        <a href="https://gu.qq.com/sh600089/gp/detail" target="_blank" style="display:block;padding:5px 0;color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--amber)">📌</b> 7/16 特变电工：经营正常，持续强化核心优势稳健经营</a>
+      </div>
     </div>
+    <script>
+    (function(){
+      var wrap=document.getElementById('ticker_wrap');
+      var inner=document.getElementById('ticker_inner');
+      if(!wrap||!inner)return;
+      var items=inner.querySelectorAll('a');
+      var h=26; // item height
+      var vis=3; // visible items
+      var idx=0;
+      var total=6; // original items (not clones)
+      function tick(){
+        idx++;
+        if(idx>total){
+          inner.style.transition='none';
+          inner.style.transform='translateY(0)';
+          idx=0;
+          setTimeout(function(){
+            inner.style.transition='transform .6s ease';
+            idx=1;
+            inner.style.transform='translateY(-'+idx*h+'px)';
+          },50);
+        }else{
+          inner.style.transform='translateY(-'+idx*h+'px)';
+        }
+      }
+      setInterval(tick,3500);
+    })();
+    </script>
   </div>
   <div class="card" style="border-color:var(--blue);margin-bottom:8px">
     <h2>💬 网友热议 · 互动平台</h2>
