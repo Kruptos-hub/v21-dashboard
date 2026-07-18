@@ -144,7 +144,30 @@ body{display:flex;flex-direction:column;height:100dvh}
 .trade-alert.amber{background:var(--amber-bg);border:1px solid rgba(210,153,34,.3)}
 .trade-alert .blink{animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,.4);border-color:rgba(248,81,73,.3)}50%{box-shadow:0 0 8px 2px rgba(248,81,73,.2);border-color:rgba(248,81,73,.6)}}
+@keyframes borderPulse{0%,100%{border-color:rgba(248,81,73,.25)}50%{border-color:rgba(248,81,73,.7)}}
+@keyframes bgFlash{0%,100%{background:rgba(248,81,73,.04)}50%{background:rgba(248,81,73,.12)}}
 .trade-alert b{white-space:nowrap}
+
+/* spotlight card */
+.spotlight{border-color:var(--red)!important;animation:glowPulse 3s infinite}
+.spotlight .sitem{padding:6px 10px;margin:3px 0;border-radius:6px;font-size:12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;line-height:1.4;border-left:3px solid transparent}
+.spotlight .sitem.crit{background:rgba(248,81,73,.06);border-left-color:var(--red);animation:bgFlash 3s infinite}
+.spotlight .sitem.warn{background:rgba(210,153,34,.04);border-left-color:var(--amber)}
+.spotlight .sitem .stag{flex-shrink:0;font-size:12px;margin-top:1px}
+.spotlight .sitem .stxt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spotlight .sitem:hover{filter:brightness(1.3)}
+
+/* ticker critical row */
+.trow-crit{background:rgba(248,81,73,.06)!important;animation:bgFlash 3s infinite}
+
+/* briefing content highlights */
+.briefing .hl-red{color:var(--red);font-weight:700}
+.briefing .hl-amber{color:var(--amber);font-weight:700}
+.briefing .hl-big{font-size:18px;font-weight:800;color:var(--red);display:inline-block;animation:blink 2s infinite}
+
+/* pulse badge */
+.pulse-badge{display:inline-block;animation:blink 1.2s infinite;font-weight:700}
 </style>
 </head>
 <body>
@@ -199,8 +222,12 @@ body{display:flex;flex-direction:column;height:100dvh}
 </div>
 
 <div class="view" id="v_briefing">
+  <div class="card spotlight" id="spotlight" style="display:none">
+    <h2>⚠ <span class="pulse-badge">特别关注</span> <span class="cnt" id="spot_cnt"></span></h2>
+    <div id="spot_items"></div>
+  </div>
   <div class="card" style="border-color:var(--amber);margin-bottom:8px;overflow:hidden">
-    <h2>📡 动态快讯 · 循环滚动</h2>
+    <h2>📡 动态快讯 · 循环滚动 <span class="cnt" style="font-size:10px">点击查看详情</span></h2>
     <div id="ticker_wrap" style="height:78px;overflow:hidden;position:relative">
       <div id="ticker_inner" style="position:relative;transition:transform .6s ease"></div>
     </div>
@@ -217,18 +244,21 @@ body{display:flex;flex-direction:column;height:100dvh}
       items.forEach(function(item,i){
         var tag=item.tag||'amber';
         var color=tag==='red'?'var(--red)':tag==='grn'?'var(--grn)':'var(--amber)';
-        h+='<div onclick="openNewsByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer"><b style="color:'+color+'">'+(tags[tag]||'📌')+'</b> '+item.title+'</div>';
+        var cls=tag==='red'?' class="trow-crit"':'';
+        h+='<div'+cls+' onclick="openNewsByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer"><b style="color:'+color+'">'+(tags[tag]||'📌')+'</b> '+item.title+'</div>';
       });
       // clone first 3 for seamless loop
       for(var i=0;i<3&&i<items.length;i++){
         var c=items[i],tag=c.tag||'amber';
         var color=tag==='red'?'var(--red)':tag==='grn'?'var(--grn)':'var(--amber)';
-        h+='<div onclick="openNewsByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer"><b style="color:'+color+'">'+(tags[tag]||'📌')+'</b> '+c.title+'</div>';
+        var cls=tag==='red'?' class="trow-crit"':'';
+        h+='<div'+cls+' onclick="openNewsByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer"><b style="color:'+color+'">'+(tags[tag]||'📌')+'</b> '+c.title+'</div>';
       }
       document.getElementById('ticker_inner').innerHTML=h;
       window.TICKER_TOTAL=items.length;
       window.TICKER_IDX=0;
       document.getElementById('ticker_inner').style.transform='translateY(0)';
+      refreshSpotlight();
     }
     function tickNews(){
       window.TICKER_IDX++;
@@ -283,17 +313,20 @@ body{display:flex;flex-direction:column;height:100dvh}
       items.forEach(function(item,i){
         var tag=item.tag||'amber';
         var color=tag==='red'?'var(--red)':tag==='grn'?'var(--grn)':'var(--amber)';
-        h+='<div onclick="openSentByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;font-size:12px"><b>'+tags[tag]+'</b> <span style="color:'+color+'">'+item.title+'</span></div>';
+        var cls=tag==='red'?' class="trow-crit"':'';
+        h+='<div'+cls+' onclick="openSentByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;font-size:12px"><b>'+tags[tag]+'</b> <span style="color:'+color+'">'+item.title+'</span></div>';
       });
       for(var i=0;i<3&&i<items.length;i++){
         var c=items[i],tag=c.tag||'amber';
         var color=tag==='red'?'var(--red)':tag==='grn'?'var(--grn)':'var(--amber)';
-        h+='<div onclick="openSentByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;font-size:12px"><b>'+tags[tag]+'</b> <span style="color:'+color+'">'+c.title+'</span></div>';
+        var cls=tag==='red'?' class="trow-crit"':'';
+        h+='<div'+cls+' onclick="openSentByIdx('+i+')" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;font-size:12px"><b>'+tags[tag]+'</b> <span style="color:'+color+'">'+c.title+'</span></div>';
       }
       document.getElementById('sent_inner').innerHTML=h;
       window.SENT_TOTAL=items.length;
       window.SENT_IDX=0;
       document.getElementById('sent_inner').style.transform='translateY(0)';
+      refreshSpotlight();
     }
     function tickSent(){
       window.SENT_IDX++;
@@ -302,6 +335,28 @@ body{display:flex;flex-direction:column;height:100dvh}
         inner.style.transition='none';inner.style.transform='translateY(0)';window.SENT_IDX=0;
         setTimeout(function(){inner.style.transition='transform .6s ease';window.SENT_IDX=1;inner.style.transform='translateY(-'+window.SENT_IDX*SENT_H+'px)';},50);
       }else{inner.style.transform='translateY(-'+window.SENT_IDX*SENT_H+'px)';}
+    }
+    // ── 特别关注：聚合所有 tag=red 的异常信号 ──
+    function refreshSpotlight(){
+      var crit=[];
+      (window.NEWS||[]).forEach(function(item,i){
+        if(item.tag==='red') crit.push({type:'news',idx:i,title:item.title,content:item.content,source:item.source,url:item.url});
+      });
+      (window.SENTIMENT||[]).forEach(function(item,i){
+        if(item.tag==='red') crit.push({type:'sent',idx:i,title:item.title,content:item.content,source:item.source});
+      });
+      var card=document.getElementById('spotlight');
+      var items=document.getElementById('spot_items');
+      var cnt=document.getElementById('spot_cnt');
+      if(!crit.length){card.style.display='none';return;}
+      card.style.display='block';
+      cnt.textContent=crit.length+'条';
+      var h='';
+      crit.forEach(function(c){
+        var fn=c.type==='news'?'openNewsByIdx('+c.idx+')':'openSentByIdx('+c.idx+')';
+        h+='<div class="sitem crit" onclick="'+fn+'"><span class="stag">🔴</span><span class="stxt">'+c.title+'</span></div>';
+      });
+      items.innerHTML=h;
     }
     buildSentiment([
       {title:"调入上证50后跌更多了，是被资本针对了吗？",source:"上证e互动",tag:"amber",content:"投资者：自从调入上证50后跌的更多了？公司各方面也都还好，硅料光伏也不是主营占比不是最多，这个票跌了这么久了，都回到半年前的价格了，请问是被资本针对了吗？还是什么原因？真的搞不懂！这几个月进来的股民亏损严重，看不到一点希望！\n\n特变电工回复：您好，公司经营正常，二季度以来，电力设备、光伏等行业板块调整，公司股价受到一定影响。调入上证50是对公司长期价值的认可，有助于吸引被动资金配置，但股价短期波动受宏观环境、行业周期及市场情绪等多重因素影响。目前公司生产经营正常，公司坚持产业定力，深耕主业，持续夯实经营实力，以良好的业绩回报广大投资者。"},
@@ -620,6 +675,23 @@ function paintBriefing(b){
     h+='</div>';
   }
   $('#brief_content').innerHTML=h;
+  highlightBriefing();
+}
+function highlightBriefing(){
+  var el=document.getElementById('brief_content');
+  if(!el)return;
+  var html=el.innerHTML;
+  // highlight large percentage drops (>=3%)
+  html=html.replace(/(\u002D\d+\.?\d*%|↓\d+\.?\d*%)/g,'<span class="hl-red">$1</span>');
+  // highlight large percentage gains (>=3%)
+  html=html.replace(/(\+\d+\.?\d*%|↑\d+\.?\d*%)/g,'<span class="hl-amber">$1</span>');
+  // highlight key risk words
+  html=html.replace(/(止损|警告|风险|亏损|下跌|流出|减持|破位)/g,'<span class="hl-red">$1</span>');
+  // highlight large amounts (亿/万 with numbers)
+  html=html.replace(/(\d+\.?\d*\s*[亿万])/g,'<span class="hl-amber">$1</span>');
+  // avoid double-wrapping
+  html=html.replace(/<span class="hl-[a-z]+">(<span class="hl-[a-z]+">[^<]*<\/span>)<\/span>/g,'$1');
+  el.innerHTML=html;
 }
 
 // sheet
