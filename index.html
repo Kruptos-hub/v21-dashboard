@@ -18,7 +18,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
   font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
 
 body{display:flex;flex-direction:column;height:100dvh}
-.view{display:none}.view.on{display:block;min-height:100%}
+.view{display:none}.view.on{display:flex;flex-direction:column}
 
 /* topbar */
 .topbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
@@ -60,7 +60,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 .pr .r .k{color:var(--txt2)}.pr .r .v{font-weight:600;font-variant-numeric:tabular-nums}
 
 /* briefing */
-.briefing{font-size:13px;line-height:1.45}
+.briefing{font-size:13px;line-height:1.45;flex:1}
 @media(min-width:900px){.briefing{columns:2;column-gap:20px}}
 .briefing h1{font-size:15px;margin:0 0 4px;font-weight:700;column-span:all}
 .briefing h2{font-size:13px;margin:10px 0 3px;color:var(--acc);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:2px;break-inside:avoid}
@@ -389,7 +389,7 @@ function renderMD(md){
 }
 function paintBriefing(b){
   if(!b)return;
-  $('#brief_content').innerHTML='<div class="card">'+renderMD(b.full_md||b.title||'')+'</div>';
+  $('#brief_content').innerHTML='<div class="card" style="flex:1">'+renderMD(b.full_md||b.title||'')+'</div>';
 }
 
 // sheet
