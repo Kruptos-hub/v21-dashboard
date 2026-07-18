@@ -121,6 +121,14 @@ body{display:flex;flex-direction:column;height:100dvh}
 .search{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;
   background:var(--surface);color:var(--txt);font-size:14px;margin-bottom:8px;outline:none}
 .search:focus{border-color:var(--acc)}
+
+/* trade alert banner */
+.trade-alert{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;margin-bottom:10px;font-size:12px}
+.trade-alert.red{background:var(--red-bg);border:1px solid rgba(248,81,73,.3)}
+.trade-alert.amber{background:var(--amber-bg);border:1px solid rgba(210,153,34,.3)}
+.trade-alert .blink{animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.trade-alert b{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -140,6 +148,8 @@ body{display:flex;flex-direction:column;height:100dvh}
   <div class="item" data-v="perf">🏆 绩效</div>
 </div>
 <div class="main">
+
+<div id="trade_banner"></div>
 
 <div class="view" id="v_strategy">
   <div class="info" id="strategy_ipo">加载中…</div>
@@ -335,8 +345,24 @@ function paintStrategy(d){
   $('#tb_pos').innerHTML='特变 <span style="color:var(--red)">¥'+(h.price||'18.66')+'</span>';
 }
 function loadStrategy(){
-  if(INIT&&INIT.strategy){paintStrategy(INIT.strategy);return;}
-  fetch('/api/strategy').then(function(r){return r.json();}).then(paintStrategy).catch(function(){});
+  if(INIT&&INIT.strategy){paintStrategy(INIT.strategy);paintTradeBanner(INIT.strategy);return;}
+  fetch('/api/strategy').then(function(r){return r.json();}).then(function(d){paintStrategy(d);paintTradeBanner(d);}).catch(function(){});
+}
+function paintTradeBanner(d){
+  if(!d)return;
+  var ip=d.ipo||{},mp=(d.plan||{}).monday_plan||{};
+  var sells=mp.step1_sell||[],stops=mp.risk_rules||[];
+  var h='';
+  // IPO alert
+  if(ip.name)h+='<div class="trade-alert red"><b class="blink">⚠ IPO</b> '+ip.name+'('+ip.code+') '+ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · 资金优先</div>';
+  // sell plan
+  if(sells.length){
+    var sb=sells.map(function(b){return b.shares.toLocaleString()+'@'+b.price;}).join(' → ');
+    h+='<div class="trade-alert amber"><b>📋 周一减仓</b> '+sb+' | 14:45无成交则市价出5000</div>';
+  }
+  // risk
+  if(stops.length)h+='<div class="trade-alert red"><b>🛑 停手</b> '+stops.join(' | ')+'</div>';
+  $('#trade_banner').innerHTML=h;
 }
 
 // flow (includes holdings summary)
@@ -468,6 +494,7 @@ function tryInit(d){
   if(d.perf)paintPerf(d.perf);
   if(d.briefing)paintBriefing(d.briefing);
   if(d.strategy)paintStrategy(d.strategy);
+  if(d.strategy)paintTradeBanner(d.strategy);
   if(d.holding_analysis||d.holdings)paintHoldings();
   loadFlow();
 }
