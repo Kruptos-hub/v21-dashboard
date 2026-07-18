@@ -174,31 +174,19 @@ body{display:flex;flex-direction:column;height:100dvh}
 <div class="topbar">
   <div class="topbar-brand">KrupstockSys <small style="color:var(--grn);font-size:10px">v2.42</small></div>
   <div class="topbar-mid">
-    <span id="tb_hs">沪深300 —</span><span id="tb_pos">特变 —</span>
+    <span id="tb_hs">沪深300 —</span><span id="tb_pos">特变 —</span><span id="tb_model" style="font-size:11px;color:var(--grn)">V21 —</span>
   </div>
   <div class="topbar-right"><span id="clk">—</span></div>
 </div>
 <div class="side" id="side">
   <div class="item on" data-v="flow">📊 持仓</div>
-  <div class="item" data-v="strategy">🎯 策略</div>
   <div class="item" data-v="briefing">📰 简报</div>
   <div class="item" data-v="sig">📡 雷达</div>
-  <div class="item" data-v="model">🧠 模型</div>
   <div class="item" data-v="perf">🏆 绩效</div>
 </div>
 <div class="main">
 
 <div id="trade_banner"></div>
-
-<div class="view" id="v_strategy">
-  <div class="info" id="strategy_ipo">加载中…</div>
-  <div class="grid2">
-    <div class="card"><h2>📈 关键位</h2><div id="strategy_levels"></div></div>
-    <div class="card"><h2>📋 周一计划</h2><div id="strategy_plan"></div></div>
-  </div>
-  <div class="card"><h2>🛡️ 风控</h2><div id="strategy_risk"></div></div>
-  <div class="card"><h2>📊 V21 信号</h2><div id="strategy_signal"></div></div>
-</div>
 
 <div class="view on" id="v_flow">
   <div class="tac" id="flow_holdings"></div>
@@ -222,12 +210,17 @@ body{display:flex;flex-direction:column;height:100dvh}
 </div>
 
 <div class="view" id="v_briefing">
+  <div class="card" style="border:2px solid var(--acc);margin-bottom:8px;box-shadow:0 0 12px rgba(121,192,255,.08)">
+    <h2 id="plan_title" style="color:var(--acc);font-size:15px">📋 周一交易计划</h2>
+    <div id="briefing_plan"><div class="empty">加载中…</div></div>
+  </div>
   <div class="card spotlight" id="spotlight" style="display:none">
     <h2>⚠ <span class="pulse-badge">特别关注</span> <span class="cnt" id="spot_cnt"></span></h2>
     <div id="spot_items"></div>
   </div>
-  <div class="card" style="border-color:var(--amber);margin-bottom:8px;overflow:hidden">
-    <h2>📡 动态快讯 · 循环滚动 <span class="cnt" style="font-size:10px">点击查看详情</span></h2>
+  <div class="grid2">
+  <div class="card" style="border-color:var(--amber);margin-bottom:0;overflow:hidden">
+    <h2>📡 动态快讯 <span class="cnt" style="font-size:10px">点击查看详情</span></h2>
     <div id="ticker_wrap" style="height:78px;overflow:hidden;position:relative">
       <div id="ticker_inner" style="position:relative;transition:transform .6s ease"></div>
     </div>
@@ -296,7 +289,7 @@ body{display:flex;flex-direction:column;height:100dvh}
     </script>
   </div>
 
-  <div class="card" style="border-color:var(--blue);margin-bottom:8px;overflow:hidden">
+  <div class="card" style="border-color:var(--blue);margin-bottom:0;overflow:hidden">
     <h2>💬 网友热议 · 互动平台 <span class="cnt" style="font-size:10px">点击查看详情</span></h2>
     <div id="sent_wrap" style="height:78px;overflow:hidden;position:relative">
       <div id="sent_inner" style="position:relative;transition:transform .6s ease"></div>
@@ -375,13 +368,13 @@ body{display:flex;flex-direction:column;height:100dvh}
     },300000);
     </script>
   </div>
+  </div><!-- /grid2 -->
 
   <div id="brief_content" class="briefing"></div>
-</div>
-
-<div class="view" id="v_model">
-  <div class="card" id="train_card"><div class="empty">加载中…</div></div>
-  <div class="card" id="model_card"><div class="empty">加载中…</div></div>
+  <div class="grid2">
+    <div class="card"><h2>📈 关键位</h2><div id="briefing_levels"><div class="empty">加载中…</div></div></div>
+    <div class="card"><h2>🛡️ 风控 + V21</h2><div id="briefing_risk"><div class="empty">加载中…</div></div></div>
+  </div>
 </div>
 
 <div class="view" id="v_perf">
@@ -489,8 +482,26 @@ document.getElementById('ncls').onclick=function(){document.getElementById('nove
 document.getElementById('nbg').onclick=function(){document.getElementById('noverlay').classList.remove('on');};
 document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('noverlay').classList.remove('on');});
 
+// dynamic plan title
+function getPlanTitle(){
+  var n=new Date(),d=n.getDay(),h=n.getHours(),m=n.getMinutes();
+  var wd=['日','一','二','三','四','五','六'];
+  var isTrade=(d>=1&&d<=5),isOpen=isTrade&&((h>9||(h===9&&m>=30))&&h<15);
+  var afterClose=isTrade&&h>=15;
+  if(!isTrade)return'📋 周一交易计划 (待开盘)';
+  if(isOpen)return'📋 周'+wd[d]+'操作执行中';
+  if(afterClose){
+    var nd=d+1;if(nd>5)nd=1;
+    return'📋 周'+wd[nd]+'交易计划';
+  }
+  return'📋 周'+wd[d]+'交易计划';
+}
+function updatePlanTitle(){
+  var el=document.getElementById('plan_title');
+  if(el)el.textContent=getPlanTitle();
+}
 // clock
-function tick(){var d=new Date();$('#clk').textContent=d.toLocaleTimeString('zh-CN',{hour12:false});}
+function tick(){var d=new Date();$('#clk').textContent=d.toLocaleTimeString('zh-CN',{hour12:false});updatePlanTitle();}
 setInterval(tick,1000);tick();
 
 // signal
@@ -510,24 +521,11 @@ function loadSignal(){
 }
 $('#q').oninput=function(){if(INIT&&INIT.signal)paintSignal(INIT.signal);};
 
-// status/model
+// status → topbar model indicator
 function paintStatus(s){
-  var t=s.training||{};
-  var h='<h2>V21 训练 <span class="cnt">'+(((s.model||{}).champion||{}).name||'Run9')+'</span></h2>';
-  if(t.found){h+='<div class="pr"><div class="r"><span class="k">状态</span><span class="v">'+t.state+'</span></div>';
-    if(t.epoch)h+='<div class="r"><span class="k">进度</span><span class="v">ep'+t.epoch+'/'+t.total_epochs+'</span></div>';
-    h+='<div class="r"><span class="k">规模</span><span class="v">'+(t.total_stocks||'?')+'只 '+(t.params||'')+'参数</span></div>';
-    if(t.train_loss!=null)h+='<div class="r"><span class="k">loss</span><span class="v">train '+t.train_loss.toFixed(4)+' val '+(t.val_loss||0).toFixed(4)+'</span></div>';
-    if(t.best_val!=null)h+='<div class="r"><span class="k">最佳val</span><span class="v">'+t.best_val.toFixed(4)+'</span></div>';
-  }else{h+='<div class="empty">训练日志未找到</div>';}
-  h+='</div>';
-  $('#train_card').innerHTML=h;
-  var m=s.model||{},d=s.data||{};
-  var mh='<h2>模型/数据</h2><div class="pr">';
-  mh+='<div class="r"><span class="k">股票缓存</span><span class="v">'+d.cache_stocks+'只</span></div>';
-  mh+='<div class="r"><span class="k">数据真实性</span><span class="v">'+((d.authenticity||{}).status==='verified_real'?'✅ 已核验':'⚠️ 未核验')+'</span></div>';
-  mh+='</div>';
-  $('#model_card').innerHTML=mh;
+  var t=s.training||{},ch=((s.model||{}).champion||{}).name||'Run9';
+  var st=t.running?'🟢':t.found?'🟡':'⚪';
+  $('#tb_model').innerHTML='V21 '+ch+' '+st+(t.epoch?' ep'+t.epoch:'');
 }
 function loadStatus(){
   if(INIT&&INIT.status){paintStatus(INIT.status);return;}
@@ -547,48 +545,43 @@ function loadPerf(){
   fetch('/api/perf').then(r=>r.json()).then(paintPerf);
 }
 
-// holdings
-function paintHoldings(){
-  var ha=INIT&&INIT.holding_analysis, hh=INIT&&INIT.holdings;
-  if(!ha||!ha.length){
-    $('#holdings_summary').innerHTML='<div class="empty">暂无持仓数据</div>';
-    return;
-  }
-  var tp=0,tv=0;ha.forEach(function(p){tp+=p.pnl_amount;tv+=p.market_value;});
-  var ta=hh?hh.total_asset:(tv+1143),cash=hh?hh.cash:1143;
-  var r=((tv)/Math.max(ta,1)*100).toFixed(1);
-  $('#holdings_summary').innerHTML=
-    '<div class="info"><div class="n">¥'+ta.toLocaleString()+'</div><div class="l">总资产</div></div>'+
-    '<div class="'+(tp>=0?'sell':'buy')+'"><div class="n">'+(tp>=0?'+':'')+Math.round(tp).toLocaleString()+'</div><div class="l">浮动盈亏</div></div>'+
-    '<div class="info"><div class="n">'+r+'%</div><div class="l">仓位</div></div>'+
-    '<div class="info"><div class="n">¥'+cash.toFixed(0)+'</div><div class="l">可用</div></div>';
-  $('#holdings_list').innerHTML=ha.map(function(p){
-    return'<div class="pr"><div class="r '+(p.pnl_pct<0?'buy':'sell')+'" style="border-left-color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'"><span class="k">'+p.name+' <small>'+p.shares.toLocaleString()+'股 @¥'+p.cost.toFixed(2)+'</small></span><span class="v" style="color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'">'+(p.pnl_pct>=0?'+':'')+p.pnl_pct.toFixed(2)+'%</span></div></div>';
-  }).join('');
+// init
+function tryInit(d){
+  INIT=d;
+  if(d.status)paintStatus(d.status);
+  if(d.signal)paintSignal(d.signal);
+  if(d.perf)paintPerf(d.perf);
+  if(d.briefing)paintBriefing(d.briefing);
+  if(d.strategy){paintStrategy(d.strategy);paintTradeBanner(d.strategy);}
+  loadFlow();
 }
-
-// strategy
 function paintStrategy(d){
   if(!d)return;
   var ip=d.ipo||{},h=d.holding||{},mp=(d.plan||{}).monday_plan||{};
   var sells=mp.step1_sell||[],stops=mp.risk_rules||[];
-  $('#strategy_ipo').innerHTML=ip.name?'<b>'+ip.name+'('+ip.code+')</b> 中签 '+ip.result_date+'公布 | 缴款 '+ip.payment_due+' | '+ip.lots+'签':'暂无IPO';
+  // IPO in trade_banner only (global)
+  // key levels
   var lv='<div class="pr">';
   lv+='<div class="r"><span class="k">现价</span><span class="v" style="color:var(--red)">¥'+(h.price||'18.66')+'</span></div>';
   lv+='<div class="r"><span class="k">成本</span><span class="v">¥'+(h.cost||'21.46')+'</span></div>';
   lv+='<div class="r"><span class="k">止损</span><span class="v" style="color:var(--red)">¥18.50</span></div>';
   lv+='<div class="r"><span class="k">压力/支撑</span><span class="v">19.42 / 18.61</span></div></div>';
-  $('#strategy_levels').innerHTML=lv;
+  $('#briefing_levels').innerHTML=lv;
+  // plan
   var pl='<div class="pr">';
   sells.forEach(function(b,i){pl+='<div class="r"><span class="k">第'+(i+1)+'批</span><span class="v">'+b.shares.toLocaleString()+'股 @¥'+b.price+'</span></div>';});
   pl+='<div class="r"><span class="k">T+1波段</span><span class="v" style="color:var(--amber)">暂停(等止跌)</span></div>';
   pl+='<div class="r"><span class="k">T+0底仓</span><span class="v">10,400股</span></div></div>';
-  $('#strategy_plan').innerHTML=pl;
+  $('#briefing_plan').innerHTML=pl;
+  // risk + V21 signal
+  var st=INIT&&INIT.status,sh=st&&st.SH600089||{};
   var rk='<div class="pr">';
   stops.forEach(function(s){rk+='<div class="r" style="border-left-color:var(--red)"><span class="k">'+s+'</span></div>';});
-  rk+='</div>';$('#strategy_risk').innerHTML=rk;
-  var st=INIT&&INIT.status,sh=st&&st.SH600089||{};
-  $('#strategy_signal').innerHTML='<div class="pr"><div class="r"><span class="k">V21排名</span><span class="v">#'+(sh.rank||'?')+'/'+(sh.total||'?')+'</span></div><div class="r"><span class="k">综合评分</span><span class="v">'+(sh.combined_score||'?')+'</span></div><div class="r"><span class="k">研判</span><span class="v" style="font-size:11px">'+(sh.assessment||'—')+'</span></div></div>';
+  rk+='<div class="r"><span class="k">V21排名</span><span class="v">#'+(sh.rank||'?')+'/'+(sh.total||'?')+'</span></div>';
+  rk+='<div class="r"><span class="k">综合评分</span><span class="v">'+(sh.combined_score||'?')+'</span></div>';
+  rk+='</div>';
+  $('#briefing_risk').innerHTML=rk;
+  // topbar
   $('#tb_hs').textContent='沪深300 3764';
   $('#tb_pos').innerHTML='特变 <span style="color:var(--red)">¥'+(h.price||'18.66')+'</span>';
 }
@@ -765,10 +758,9 @@ function tryInit(d){
 }
 
 fetch('init.json').then(function(r){return r.json();}).then(tryInit).catch(function(){
-  loadStatus();loadSignal();loadStrategy();loadFlow();loadPerf();
+  loadStatus();loadSignal();loadFlow();loadPerf();
   fetch('/api/strategy').then(function(r){return r.json();}).then(function(d){
     if(d&&d.holding){$('#tb_hs').textContent='沪深300 3764';$('#tb_pos').innerHTML='特变 <span style="color:var(--red)">¥'+(d.holding.price||'18.66')+'</span>';}
-    paintHoldings();
   }).catch(function(){});
 });
 
