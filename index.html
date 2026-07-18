@@ -225,6 +225,25 @@ body{display:flex;flex-direction:column;height:100dvh}
         }
       }
       setInterval(tick,3500);
+      // auto-refresh from API every 5 minutes
+      setInterval(function(){
+        fetch('/api/news').then(function(r){return r.json()}).then(function(d){
+          if(!d.items||!d.items.length)return;
+          var tags={red:'⚠',amber:'📌',grn:'💹'};
+          var h='';
+          d.items.forEach(function(item){
+            var tag=item.tag||'amber';
+            h+='<a href="'+(item.url||'#')+'" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--'+(tag==='red'?'red':tag==='grn'?'grn':'amber')+')">'+(tags[tag]||'📌')+'</b> '+item.title+'</a>';
+          });
+          // clone first 3 for seamless loop
+          var clone='';
+          for(var i=0;i<3&&i<d.items.length;i++){
+            var c=d.items[i],tag=c.tag||'amber';
+            clone+='<a href="'+(c.url||'#')+'" target="_blank" style="display:block;padding:5px 0;border-bottom:1px solid rgba(30,42,54,.3);color:var(--txt2);text-decoration:none;height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"><b style="color:var(--'+(tag==='red'?'red':tag==='grn'?'grn':'amber')+')">'+(tags[tag]||'📌')+'</b> '+c.title+'</a>';
+          }
+          document.getElementById('ticker_inner').innerHTML=h+clone;
+        }).catch(function(){});
+      },300000);
     })();
     </script>
   </div>
