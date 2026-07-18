@@ -357,11 +357,11 @@ function paintTradeBanner(d){
   if(ip.name)h+='<div class="trade-alert red"><b class="blink">⚠ IPO</b> '+ip.name+'('+ip.code+') '+ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · 资金优先</div>';
   // sell plan
   if(sells.length){
-    var sb=sells.map(function(b){return b.shares.toLocaleString()+'@'+b.price;}).join(' → ');
+    var sb=sells.map(function(b){return '特变电工 '+b.shares.toLocaleString()+'@'+b.price;}).join(' → ');
     h+='<div class="trade-alert amber"><b>📋 周一减仓</b> '+sb+' | 14:45无成交则市价出5000</div>';
   }
   // risk
-  if(stops.length)h+='<div class="trade-alert red"><b>🛑 停手</b> '+stops.join(' | ')+'</div>';
+  if(stops.length)h+='<div class="trade-alert red"><b>🛑 停手</b> '+stops.join(' | ').replace(/HS300/g,'沪深300').replace(/特变/g,'特变电工')+'</div>';
   $('#trade_banner').innerHTML=h;
 }
 
