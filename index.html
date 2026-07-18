@@ -41,13 +41,15 @@ body{display:flex;flex-direction:column;height:100dvh}
 /* sidebar */
 .side{display:none}
 .main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px}
+/* v2.50 默认隐藏 botbar, 竖屏再启用 */
+.botbar{display:none}
 @media(min-width:900px){
   body{flex-direction:row;flex-wrap:wrap}
   .topbar{flex-basis:100%}
   .side{display:flex;flex-direction:column;width:130px;flex:0 0 130px;
     background:var(--surface);border-right:1px solid var(--border);padding:10px 6px;gap:4px}
   .side .item{padding:14px 10px;border-radius:8px;font-size:14px;color:var(--txt2);
-    cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;user-select:none;font-weight:500;
+    cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;user-select:none;-webkit-touch-callout:none;font-weight:500;
     transition:background .15s,color .15s}
   .side .item:hover{background:var(--card);color:var(--txt)}
   .side .item.on{background:var(--card);color:var(--acc);font-weight:700;
@@ -55,6 +57,52 @@ body{display:flex;flex-direction:column;height:100dvh}
   @keyframes sideGlow{0%,100%{box-shadow:inset 0 0 0 1px rgba(121,192,255,.08)}40%{box-shadow:inset 0 0 0 2px rgba(121,192,255,.35),0 0 12px rgba(121,192,255,.12)}70%{box-shadow:inset 0 0 0 1px rgba(121,192,255,.2),0 0 6px rgba(121,192,255,.06)}}
   .main{flex:1;height:calc(100dvh - 40px);overflow-y:auto;padding:10px}
 }
+/* portrait / mobile */
+@media(max-width:899px){
+  .grid2{grid-template-columns:1fr}
+  .botbar{display:flex;flex:0 0 auto;background:var(--surface);border-top:1px solid var(--border);
+    padding:4px 8px calc(4px + env(safe-area-inset-bottom,0px));gap:4px;z-index:10}
+  .botbar .item{flex:1;padding:10px 6px;border-radius:8px;font-size:12px;color:var(--txt2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;user-select:none;-webkit-touch-callout:none;font-weight:500;transition:background .15s,color .15s;text-align:center}
+  .botbar .item:hover{background:var(--card);color:var(--txt)}
+  .botbar .item.on{background:var(--card);color:var(--acc);font-weight:700}
+  /* v2.50 竖屏 sheet 改为底部弹出, 避免遮挡 50% 屏幕 */
+  .sheet_box{position:absolute!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;
+    width:auto!important;max-width:100%!important;max-height:80vh!important;
+    border-left:none!important;border-top:1px solid var(--border);border-radius:14px 14px 0 0!important;padding:14px!important}
+  /* v2.52 竖屏雷达页: iPad 竖屏(560~899px)三列并排, 避免等高拉伸 */
+  .grid3{grid-template-columns:1fr 1fr 1fr}
+  .tier{align-self:start}
+  .tier h3{font-size:12px}
+  .tier h3 small{display:none}
+  /* 窄列下股票行更紧凑 */
+  .tier .srow{font-size:11px;padding:3px 4px}
+  .tier .srow .nm{max-width:96px}
+}
+/* 分段标签默认隐藏, 仅手机端雷达页显示 */
+.sig-tabs{display:none}
+/* 手机竖屏(<560px): 雷达页改为顶部 sticky 分段标签 + 单列切换, 一眼可见三类 */
+@media(max-width:559px){
+  .sig-tabs{display:flex;gap:6px;position:sticky;top:0;z-index:5;
+    background:var(--bg);padding:6px 0;margin-bottom:8px}
+  .sig-tabs button{flex:1;padding:10px 4px;border:1px solid var(--border);border-radius:8px;
+    background:var(--surface);color:var(--txt2);font-size:13px;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation}
+  .sig-tabs button.on{background:var(--card);color:var(--acc);border-color:var(--acc);
+    box-shadow:0 0 8px rgba(121,192,255,.15)}
+  .sig-tabs button i{font-style:normal;font-size:11px;color:var(--txt3)}
+  .sig-tabs button.on i{color:var(--acc)}
+  .grid3{grid-template-columns:1fr}
+  .tier{display:none}
+  .tier.show{display:block}
+  .tier h3 small{display:inline}
+  .tier .srow{font-size:12px;padding:4px 6px}
+  .tier .srow .nm{max-width:120px}
+}
+
+/* ticker items */
+#ticker_inner>div,#sent_inner>div,.ticker>div,.sent>div{-webkit-touch-callout:none;user-select:none}
+/* v2.50 topbar 元素也阻止长按菜单 */
+.topbar,.topbar *{-webkit-touch-callout:none;user-select:none}
 /* pos rows */
 .pr{display:flex;flex-direction:column;gap:4px}
 .pr .r{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;
@@ -91,7 +139,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 .tier>div{padding:4px 6px}
 
 /* sig rows */
-.srow{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:12px;border-bottom:1px solid rgba(30,42,54,.3);cursor:pointer}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:12px;border-bottom:1px solid rgba(30,42,54,.3);cursor:pointer;-webkit-touch-callout:none;user-select:none;touch-action:manipulation}
 .srow:hover{background:var(--surface)}.srow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
 .srow .sc{font-weight:600;font-variant-numeric:tabular-nums;flex-shrink:0;margin-left:8px}
 
@@ -153,6 +201,41 @@ body{display:flex;flex-direction:column;height:100dvh}
 @keyframes waveFlash{0%,100%{background:rgba(248,81,73,.02);box-shadow:none}12%{background:rgba(248,81,73,.08);box-shadow:0 0 4px rgba(248,81,73,.12)}24%{background:rgba(248,81,73,.02);box-shadow:none}}
 .trade-alert b{white-space:nowrap}
 
+/* instruction cards */
+.instr-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;-webkit-touch-callout:none;user-select:none;touch-action:manipulation;position:relative;transition:opacity .3s}
+.instr-card:active{background:var(--surface)}
+.instr-card.done{opacity:.35;text-decoration:line-through;text-decoration-color:var(--txt3)}
+/* v2.51 视觉提示: 可双击操作 */
+.instr-card .iaction-hint{position:absolute;top:6px;right:8px;font-size:18px;color:var(--txt3);opacity:.5;line-height:1}
+.instr-card .ihdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.instr-card .iact{font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px}
+.instr-card .iact.sell{background:var(--red-bg);color:var(--red)}
+.instr-card .iact.buy{background:var(--grn-bg);color:var(--grn)}
+.instr-card .iact.warn{background:var(--amber-bg);color:var(--amber)}
+.instr-card .idetail{font-size:12px;color:var(--txt2);line-height:1.5}
+.instr-card .ihint{font-size:10px;color:var(--txt3);margin-top:3px}
+
+/* v2.51 底部 Action Sheet（双击触发，替代长按） */
+.instr-menu{position:fixed;z-index:55;left:0;right:0;top:0;bottom:0;
+  display:none;pointer-events:none}
+.instr-menu.on{display:block;pointer-events:auto}
+.instr-menu-mask{position:absolute;inset:0;background:rgba(0,0,0,.45);
+  animation:fadeIn .2s}
+.instr-menu-panel{position:absolute;left:0;right:0;bottom:0;
+  background:var(--card);border-radius:14px 14px 0 0;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -4px 20px rgba(0,0,0,.5);
+  animation:slideUp .25s ease}
+.instr-menu-panel button{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border:none;background:none;color:var(--txt);font-size:16px;cursor:pointer;
+  border-radius:8px;text-align:left;width:100%;border-bottom:1px solid var(--border-light)}
+.instr-menu-panel button:last-child{border-bottom:none}
+.instr-menu-panel button:active{background:var(--surface)}
+.instr-menu-panel button.done-btn{color:var(--grn);font-weight:600}
+.instr-menu-panel button.skip-btn{color:var(--txt2)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
 /* spotlight card */
 .spotlight{border-color:var(--red)!important;animation:glowPulse 3s infinite}
 .spotlight .sitem{padding:6px 10px;margin:3px 0;border-radius:6px;font-size:12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;line-height:1.4;border-left:3px solid transparent}
@@ -176,13 +259,19 @@ body{display:flex;flex-direction:column;height:100dvh}
 </head>
 <body>
 <div class="topbar">
-  <div class="topbar-brand">KrupstockSys <small style="color:var(--grn);font-size:10px">v2.45</small></div>
+  <div class="topbar-brand">KrupstockSys <small style="color:var(--grn);font-size:10px">v2.54</small></div>
   <div class="topbar-mid">
     <span id="tb_hs">沪深300 —</span><span id="tb_pos">特变 —</span><span id="tb_model" style="font-size:11px;color:var(--grn)">V21 —</span>
   </div>
   <div class="topbar-right"><span id="clk">—</span></div>
 </div>
 <div class="side" id="side">
+  <div class="item on" data-v="flow">📊 持仓</div>
+  <div class="item" data-v="briefing">📰 简报</div>
+  <div class="item" data-v="sig">📡 雷达</div>
+  <div class="item" data-v="perf">🏆 绩效</div>
+</div>
+<div class="botbar" id="botbar">
   <div class="item on" data-v="flow">📊 持仓</div>
   <div class="item" data-v="briefing">📰 简报</div>
   <div class="item" data-v="sig">📡 雷达</div>
@@ -206,10 +295,15 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 <div class="view" id="v_sig">
   <input class="search" id="q" placeholder="搜索代码/名称…">
+  <div class="sig-tabs" id="sig_tabs">
+    <button data-tier="core" class="on">主仓 <i id="c_core2"></i></button>
+    <button data-tier="swing">波段 <i id="c_swing2"></i></button>
+    <button data-tier="avoid">回避 <i id="c_avoid2"></i></button>
+  </div>
   <div class="grid3">
-    <div class="tier core"><h3>主仓 · 长线 <span class="cnt" id="c_core"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">V21前3% 评分越高越强</small></h3><div id="core"></div></div>
-    <div class="tier swing"><h3>波段 · T+0/T+1 <span class="cnt" id="c_swing"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名3%~8% 短线标的</small></h3><div id="swing"></div></div>
-    <div class="tier avoid"><h3>回避 · 不持仓 <span class="cnt" id="c_avoid"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名后8% V21看空</small></h3><div id="avoid"></div></div>
+    <div class="tier core" id="tier_core"><h3>主仓 · 长线 <span class="cnt" id="c_core"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">V21前3% 评分越高越强</small></h3><div id="core"></div></div>
+    <div class="tier swing" id="tier_swing"><h3>波段 · T+0/T+1 <span class="cnt" id="c_swing"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名3%~8% 短线标的</small></h3><div id="swing"></div></div>
+    <div class="tier avoid" id="tier_avoid"><h3>回避 · 不持仓 <span class="cnt" id="c_avoid"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名后8% V21看空</small></h3><div id="avoid"></div></div>
   </div>
 </div>
 
@@ -217,6 +311,10 @@ body{display:flex;flex-direction:column;height:100dvh}
   <div class="card" style="border:2px solid var(--acc);margin-bottom:8px;box-shadow:0 0 12px rgba(121,192,255,.08)">
     <h2 id="plan_title" style="color:var(--acc);font-size:15px">📋 周一交易计划</h2>
     <div id="briefing_plan"><div class="empty">加载中…</div></div>
+  </div>
+  <div class="card" id="instr_section">
+    <h2>📋 今日指令 <span class="cnt" style="font-size:10px">双击标记状态</span></h2>
+    <div id="instr_list"><div class="empty">加载中…</div></div>
   </div>
   <div class="card spotlight" id="spotlight" style="display:none">
     <h2>⚠ <span class="pulse-badge">特别关注</span> <span class="cnt" id="spot_cnt"></span></h2>
@@ -430,6 +528,14 @@ body{display:flex;flex-direction:column;height:100dvh}
   </div>
 </div>
 
+<div class="instr-menu" id="instr_menu">
+  <div class="instr-menu-mask" id="instr_menu_mask"></div>
+  <div class="instr-menu-panel">
+    <button class="done-btn" id="instr_done">✅ 标记已执行</button>
+    <button class="skip-btn" id="instr_skip">⏭ 跳过</button>
+  </div>
+</div>
+
 <script>
 var INIT=null;
 var RT={};
@@ -438,6 +544,7 @@ var $=s=>document.querySelector(s);
 function show(v){
   document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v_'+v));
   document.querySelectorAll('.side .item').forEach(e=>e.classList.toggle('on',e.dataset.v===v));
+  document.querySelectorAll('.botbar .item').forEach(e=>e.classList.toggle('on',e.dataset.v===v));
 }
 document.addEventListener('click',e=>{var t=e.target.closest('[data-v]');if(t)show(t.dataset.v);});
 
@@ -451,8 +558,16 @@ if(localStorage.getItem('krup_v2_unlocked')){$('#gate').style.display='none';}el
   $('#gate_inp').onkeydown=function(e){if(e.key==='Enter')$('#gate_btn').click();};
 }
 
+// v2.50 弹窗互斥: 关闭其他弹窗再开新的
+function _closeAllOverlays(){
+  var no=document.getElementById('noverlay');if(no)no.classList.remove('on');
+  var sh=document.getElementById('sheet');if(sh)sh.classList.remove('on');
+  var im=document.getElementById('instr_menu');if(im)im.classList.remove('on');
+}
+
 // news detail overlay
 function openNews(item){
+  _closeAllOverlays();
   var ttl=document.getElementById('nttl');
   var meta=document.getElementById('nmeta');
   var body=document.getElementById('nbody');
@@ -491,6 +606,7 @@ function renderNewsDetail(item){
 }
 document.getElementById('ncls').onclick=function(){document.getElementById('noverlay').classList.remove('on');};
 document.getElementById('nbg').onclick=function(){document.getElementById('noverlay').classList.remove('on');};
+document.getElementById('nbg').addEventListener('touchend',function(){document.getElementById('noverlay').classList.remove('on');});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('noverlay').classList.remove('on');});
 
 // dynamic plan title
@@ -517,20 +633,48 @@ setInterval(tick,1000);tick();
 
 // signal
 function fmtSc(x){return(x>=0?'+':'')+x.toFixed(3);}
-function srowHTML(o){return'<div class="srow" data-code="'+o.code+'"><span class="nm">'+(o.name||o.code)+'</span><span style="font-size:10px;color:var(--txt3);margin-right:auto">'+o.code+'</span><span class="sc" title="V21模型评分">'+fmtSc(o.score)+'</span></div>';}
+function srowHTML(o){return'<div class="srow" data-code="'+o.code+'"><span class="nm">'+(o.name||o.code)+'</span><span style="font-size:10px;color:var(--txt3);margin-right:auto">'+o.code+'</span><span class="sc" title="推荐评分">'+fmtSc(o.score)+'</span></div>';}
 function paintSignal(s){
   $('#c_core').textContent=s.buy_core.length;
   $('#c_swing').textContent=s.buy_swing.length;
   $('#c_avoid').textContent=s.avoid.length;
-  $('#core').innerHTML=s.buy_core.map(srowHTML).join('');
-  $('#swing').innerHTML=s.buy_swing.map(srowHTML).join('');
-  $('#avoid').innerHTML=s.avoid.map(srowHTML).join('');
+  // v2.53 同步计数到手机端分段标签徽标
+  var c2=document.getElementById('c_core2'),sw2=document.getElementById('c_swing2'),av2=document.getElementById('c_avoid2');
+  if(c2)c2.textContent=s.buy_core.length;
+  if(sw2)sw2.textContent=s.buy_swing.length;
+  if(av2)av2.textContent=s.avoid.length;
+  // v2.54 保险排序: 即使后端数据未排序, 前端也按推荐分重排(双保险)
+  // core/swing 降序(最高推荐在前); avoid 升序(最该回避的最低分在前)
+  var coreSort=s.buy_core.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var swingSort=s.buy_swing.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var avoidSort=s.avoid.slice().sort(function(a,b){return (a.score||0)-(b.score||0);});
+  $('#core').innerHTML=coreSort.map(srowHTML).join('');
+  $('#swing').innerHTML=swingSort.map(srowHTML).join('');
+  $('#avoid').innerHTML=avoidSort.map(srowHTML).join('');
 }
 function loadSignal(){
   if(INIT&&INIT.signal){paintSignal(INIT.signal);return;}
   fetch('/api/signal').then(r=>r.json()).then(j=>{if(j.ok)paintSignal(j.signal);});
 }
+// v2.53 手机端雷达页分段标签切换
+(function(){
+  var tabs=document.getElementById('sig_tabs');
+  if(!tabs)return;
+  function applyTier(tier){
+    tabs.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.tier===tier);});
+    document.querySelectorAll('.tier').forEach(function(t){t.classList.toggle('show',t.id==='tier_'+tier);});
+  }
+  tabs.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click',function(){applyTier(b.dataset.tier);});
+  });
+  // 初始化: 手机端默认显示主仓
+  applyTier('core');
+})();
 $('#q').oninput=function(){if(INIT&&INIT.signal)paintSignal(INIT.signal);};
+// v2.50 搜索框聚焦时滚动到搜索框避免键盘遮挡
+$('#q').addEventListener('focus',function(){setTimeout(function(){
+  var q=document.getElementById('q');if(q&&q.scrollIntoView)q.scrollIntoView({block:'start',behavior:'smooth'});
+},300);});
 
 // status → topbar model indicator
 function paintStatus(s){
@@ -563,7 +707,7 @@ function tryInit(d){
   if(d.signal)paintSignal(d.signal);
   if(d.perf)paintPerf(d.perf);
   if(d.briefing)paintBriefing(d.briefing);
-  if(d.strategy){paintStrategy(d.strategy);paintTradeBanner(d.strategy);}
+  if(d.strategy){paintStrategy(d.strategy);buildInstructions(d.strategy);}
   loadFlow();
 }
 function paintStrategy(d){
@@ -597,25 +741,96 @@ function paintStrategy(d){
   $('#tb_pos').innerHTML='特变 <span style="color:var(--red)">¥'+(h.price||'18.66')+'</span>';
 }
 function loadStrategy(){
-  if(INIT&&INIT.strategy){paintStrategy(INIT.strategy);paintTradeBanner(INIT.strategy);return;}
-  fetch('/api/strategy').then(function(r){return r.json();}).then(function(d){paintStrategy(d);paintTradeBanner(d);}).catch(function(){});
+  if(INIT&&INIT.strategy){paintStrategy(INIT.strategy);buildInstructions(INIT.strategy);return;}
+  fetch('/api/strategy').then(function(r){return r.json();}).then(function(d){paintStrategy(d);buildInstructions(d);}).catch(function(){});
 }
-function paintTradeBanner(d){
+// instruction cards with long-press
+function buildInstructions(d){
   if(!d)return;
   var ip=d.ipo||{},mp=(d.plan||{}).monday_plan||{};
   var sells=mp.step1_sell||[],stops=mp.risk_rules||[];
-  var h='';
-  // IPO alert
-  if(ip.name)h+='<div class="trade-alert red"><b class="blink">⚠ IPO</b> '+ip.name+'('+ip.code+') '+ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · 资金优先</div>';
-  // sell plan
-  if(sells.length){
-    var sb=sells.map(function(b){return b.shares.toLocaleString()+'@'+b.price;}).join(' → ');
-    h+='<div class="trade-alert amber"><b>📋 周一减仓</b> '+sb+' | 14:45无成交则市价出5000</div>';
-  }
-  // risk
-  if(stops.length)h+='<div class="trade-alert red"><b>🛑 停手</b> '+stops.join(' | ')+'</div>';
-  $('#trade_banner').innerHTML=h;
+  var state=JSON.parse(localStorage.getItem('krup_instr')||'{}');
+  var cards=[],h='';
+  // IPO card
+  if(ip.name)cards.push({id:'ipo',act:'buy',title:ip.name+'('+ip.code+')',detail:ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · '+ip.lots+'签 · 资金优先'});
+  // sell cards
+  sells.forEach(function(b,i){
+    cards.push({id:'sell_'+i,act:'sell',title:'第'+(i+1)+'批减仓: '+b.shares.toLocaleString()+'股 @¥'+b.price,detail:'14:45前无成交则市价出5000股'+(i>0?' · 剩余批次':''),hint:'目标价 ¥'+b.price});
+  });
+  // T+0
+  cards.push({id:'t0',act:'warn',title:'T+0底仓 10,400股',detail:'日内波段操作 · 止损 ¥18.50 · 暂停T+1(等止跌)'});
+  // risk rules
+  stops.forEach(function(s,i){cards.push({id:'risk_'+i,act:'warn',title:s,detail:'风控规则 · 触发则无条件执行'});});
+  // render
+  cards.forEach(function(c){
+    var st=state[c.id]||'';
+    var cls=st?' done':'';
+    h+='<div class="instr-card'+cls+'" data-iid="'+c.id+'"><span class="iaction-hint">⋯</span><div class="ihdr"><span class="iact '+c.act+'">'+(c.act==='sell'?'卖出':c.act==='buy'?'申购':'风控')+'</span>'+(st?'<span style="font-size:10px;color:var(--txt3)">'+st+'</span>':'')+'</div><div class="idetail"><b>'+c.title+'</b></div><div class="idetail">'+c.detail+'</div>'+(c.hint?'<div class="ihint">'+c.hint+'</div>':'')+'</div>';
+  });
+  $('#instr_list').innerHTML=h||'<div class="empty">暂无交易指令</div>';
+  // v2.51 双击触发菜单（替代长按，避免 iOS 系统菜单干扰）
+  var _lastTap=0,_tapTarget=null;
+  document.querySelectorAll('.instr-card').forEach(function(el){
+    el.addEventListener('click',function(e){
+      var now=Date.now();
+      if(now-_lastTap<350 && _tapTarget===el){
+        // 双击: 弹出底部 Action Sheet
+        e.preventDefault();e.stopPropagation();
+        _lastTap=0;_tapTarget=null;
+        showInstrMenu_v2(el);
+      } else {
+        _lastTap=now;_tapTarget=el;
+        // 500ms 内无第二次点击，清除（防止误触）
+        setTimeout(function(){if(_lastTap===now)_tapTarget=null;},500);
+      }
+    });
+  });
 }
+// v2.51 底部 Action Sheet 菜单（双击触发，替代长按）
+var _instrTarget=null;
+function showInstrMenu_v2(el){
+  _instrTarget=el;
+  var menu=document.getElementById('instr_menu');
+  _closeAllOverlays();
+  menu.classList.add('on');
+  // 5s 自动消失
+  clearTimeout(window._instrTimer);
+  window._instrTimer=setTimeout(function(){menu.classList.remove('on');},5000);
+}
+// 菜单按钮事件
+document.getElementById('instr_done').onclick=function(){
+  if(!_instrTarget)return;
+  var id=_instrTarget.dataset.iid;
+  var state=JSON.parse(localStorage.getItem('krup_instr')||'{}');
+  state[id]='✅已执行 '+new Date().toLocaleDateString('zh-CN');
+  localStorage.setItem('krup_instr',JSON.stringify(state));
+  _instrTarget.classList.add('done');
+  _instrTarget.querySelector('.iaction-hint').style.display='none';
+  _instrTarget.querySelector('.ihdr').insertAdjacentHTML('beforeend','<span style="font-size:10px;color:var(--txt3)">✅已执行</span>');
+  document.getElementById('instr_menu').classList.remove('on');
+  _instrTarget=null;
+};
+document.getElementById('instr_skip').onclick=function(){
+  if(!_instrTarget)return;
+  var id=_instrTarget.dataset.iid;
+  var state=JSON.parse(localStorage.getItem('krup_instr')||'{}');
+  state[id]='⏭已跳过';
+  localStorage.setItem('krup_instr',JSON.stringify(state));
+  _instrTarget.classList.add('done');
+  _instrTarget.querySelector('.iaction-hint').style.display='none';
+  _instrTarget.querySelector('.ihdr').insertAdjacentHTML('beforeend','<span style="font-size:10px;color:var(--txt3)">⏭已跳过</span>');
+  document.getElementById('instr_menu').classList.remove('on');
+  _instrTarget=null;
+};
+// 点击遮罩关闭菜单
+document.getElementById('instr_menu_mask').addEventListener('click',function(){
+  document.getElementById('instr_menu').classList.remove('on');
+  clearTimeout(window._instrTimer);
+});
+document.getElementById('instr_menu_mask').addEventListener('touchend',function(){
+  document.getElementById('instr_menu').classList.remove('on');
+  clearTimeout(window._instrTimer);
+});
 
 // flow (includes holdings summary)
 function loadFlow(){
@@ -633,6 +848,13 @@ function loadFlow(){
     $('#flow_positions').innerHTML='<div class="card"><h2>📋 持仓明细</h2>'+ha.map(function(p){
       return'<div class="pr"><div class="r '+(p.pnl_pct<0?'buy':'sell')+'" style="border-left-color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'"><span class="k">'+p.name+' <small>'+p.shares.toLocaleString()+'股 @¥'+p.cost.toFixed(2)+'</small></span><span class="v" style="color:'+(p.pnl_pct<0?'var(--grn)':'var(--red)')+'">'+(p.pnl_pct>=0?'+':'')+p.pnl_pct.toFixed(2)+'%</span></div></div>';
     }).join('')+'</div>';
+  } else {
+    $('#flow_holdings').innerHTML=
+      '<div class="info"><div class="n">—</div><div class="l">总资产</div></div>'+
+      '<div class="info"><div class="n">—</div><div class="l">浮动盈亏</div></div>'+
+      '<div class="info"><div class="n">—%</div><div class="l">仓位</div></div>'+
+      '<div class="info"><div class="n">—</div><div class="l">可用</div></div>';
+    $('#flow_positions').innerHTML='<div class="card"><h2>📋 持仓明细</h2><div class="empty">暂无数据</div></div>';
   }
   // fund flow data
   $('#flow_sh089').innerHTML='<div class="r"><span class="k">7/17主力</span><span class="v" style="color:var(--red)">-2.16亿</span></div><div class="r"><span class="k">超大单</span><span class="v">-1.66亿</span></div><div class="r"><span class="k">散户</span><span class="v">+1.61亿</span></div>';
@@ -700,6 +922,7 @@ function highlightBriefing(){
 
 // sheet
 function openStock(code){
+  _closeAllOverlays();
   var sig=INIT&&INIT.signal;if(!sig)return;
   var tmap={buy_core:'主仓',buy_swing:'波段',avoid:'回避'};var tier='',entry=null,list=[];
   for(var k in tmap){list=sig[k]||[];for(var i=0;i<list.length;i++){if(list[i].code===code){tier=tmap[k];entry=list[i];break;}}if(entry)break;}
@@ -723,6 +946,7 @@ function openStock(code){
 }
 document.getElementById('d_close').onclick=function(){$('#sheet').classList.remove('on');};
 document.getElementById('sheet_bg').onclick=function(){$('#sheet').classList.remove('on');};
+document.getElementById('sheet_bg').addEventListener('touchend',function(){$('#sheet').classList.remove('on');});
 document.addEventListener('click',function(e){
   var t=e.target.closest('.srow');if(!t)return;
   var code=t.getAttribute('data-code');if(code)openStock(code);
