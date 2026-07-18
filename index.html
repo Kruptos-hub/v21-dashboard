@@ -258,8 +258,10 @@ body{display:flex;flex-direction:column;height:100dvh}
       refreshSpotlight();
     }
     function tickNews(){
+      if(!window.TICKER_TOTAL)return;
       window.TICKER_IDX++;
       var inner=document.getElementById('ticker_inner');
+      if(!inner)return;
       if(window.TICKER_IDX>window.TICKER_TOTAL){
         inner.style.transition='none';
         inner.style.transform='translateY(0)';
@@ -273,6 +275,7 @@ body{display:flex;flex-direction:column;height:100dvh}
         inner.style.transform='translateY(-'+window.TICKER_IDX*window.TICKER_ITEM_H+'px)';
       }
     }
+    setInterval(tickNews,3500);
     // init with defaults
     try{buildTicker([
       {title:"7/17 收18.66(-1.17%)，5日-6.98%，主力净流出2.16亿",url:"https://gu.qq.com/sh600089/gp",source:"腾讯证券",tag:"red",content:"特变电工今日收盘18.66元，跌幅1.17%。近5日累计跌幅6.98%，主力资金净流出2.16亿元。超大单净流出1.66亿，散户净流入1.61亿，呈现典型的机构出货、散户接盘格局。"},
@@ -282,7 +285,7 @@ body{display:flex;flex-direction:column;height:100dvh}
       {title:"拟派现金红利0.36元/股，发行10亿可转债",url:"https://gu.qq.com/sh600089/gp",source:"公司公告",tag:"grn",content:"特变电工公告2024年度利润分配方案：拟每10股派发现金红利3.60元（含税），同时拟发行不超过10亿元可转换公司债券，用于补充流动资金和偿还银行贷款。"},
       {title:"电力设备20日-20.67%，主力净流出59.51亿",url:"https://gu.qq.com/sh600089/gp/detail",source:"东方财富",tag:"red",content:"电力设备板块近20个交易日跌幅达20.67%，主力资金累计净流出59.51亿元。行业整体承压，但电网设备和特高压细分领域相对抗跌，结构性分化明显。"}
     ]);
-    }catch(e){}setInterval(tickNews,3500);
+    }catch(e){}
     // auto-refresh from API every 5 minutes
     setInterval(function(){
       fetch('/api/news').then(function(r){return r.json();}).then(function(d){
@@ -326,8 +329,10 @@ body{display:flex;flex-direction:column;height:100dvh}
       refreshSpotlight();
     }
     function tickSent(){
+      if(!window.SENT_TOTAL)return;
       window.SENT_IDX++;
       var inner=document.getElementById('sent_inner');
+      if(!inner)return;
       if(window.SENT_IDX>window.SENT_TOTAL){
         inner.style.transition='none';inner.style.transform='translateY(0)';window.SENT_IDX=0;
         setTimeout(function(){inner.style.transition='transform .6s ease';window.SENT_IDX=1;inner.style.transform='translateY(-'+window.SENT_IDX*SENT_H+'px)';},50);
@@ -356,6 +361,7 @@ body{display:flex;flex-direction:column;height:100dvh}
       });
       items.innerHTML=h;
     }
+    setInterval(tickSent,4000);
     try{buildSentiment([
       {title:"调入上证50后跌更多了，是被资本针对了吗？",source:"上证e互动",tag:"amber",content:"投资者：自从调入上证50后跌的更多了？公司各方面也都还好，硅料光伏也不是主营占比不是最多，这个票跌了这么久了，都回到半年前的价格了，请问是被资本针对了吗？还是什么原因？真的搞不懂！这几个月进来的股民亏损严重，看不到一点希望！\n\n特变电工回复：您好，公司经营正常，二季度以来，电力设备、光伏等行业板块调整，公司股价受到一定影响。调入上证50是对公司长期价值的认可，有助于吸引被动资金配置，但股价短期波动受宏观环境、行业周期及市场情绪等多重因素影响。目前公司生产经营正常，公司坚持产业定力，深耕主业，持续夯实经营实力，以良好的业绩回报广大投资者。"},
       {title:"是否配合可转债压低股价？请给交代",source:"上证e互动",tag:"red",content:"投资者：请贵司张董协同管理层召开投资者交流会，交代一下公司各项主营业务最新进展以及近期资本市场上持续非理性下滑的原因，是否存在为了配合公司可转债发行从而压低公司当前股价的可能，给投资者一个交代？\n\n特变电工回复：您好，股价短期波动受宏观环境、行业周期及市场情绪等多重因素影响。目前公司生产经营一切正常，核心业务稳健推进，不存在重大利空事项。"},
@@ -364,7 +370,7 @@ body{display:flex;flex-direction:column;height:100dvh}
       {title:"印度公司经营情况如何？有风险吗？",source:"上证e互动",tag:"amber",content:"投资者：请问公司真要参与印度电力建设吗？这个风险有考虑吗？\n\n特变电工回复：您好，印度公司于2010年投资设立，自设立以来，印度公司积极调整产品结构及市场结构，经营态势持续向好。"},
       {title:"公司目前暂无回购、增持计划",source:"格隆汇",tag:"amber",content:"特变电工在投资者互动平台表示，公司目前暂无回购、增持计划。公司管理层将持续聚焦主业，强化四大产业协同，扎实做好经营管理和价值传递工作，努力以良好的业绩促进公司价值与市值的良性互动。"}
     ]);
-    }catch(e){}setInterval(tickSent,4000);
+    }catch(e){}
     setInterval(function(){
       fetch('/api/sentiment').then(function(r){return r.json();}).then(function(d){
         if(!d.items||!d.items.length)return;
