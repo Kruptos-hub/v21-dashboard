@@ -75,10 +75,15 @@ body{display:flex;flex-direction:column;height:100dvh}
 .briefing strong{color:var(--txt)}.briefing em{color:var(--acc)}
 
 /* signal tiers */
-.tier h3{font-size:12px;font-weight:600;margin-bottom:4px;padding:4px 8px;border-radius:4px}
+.tier{padding:0;border-radius:6px}
+.tier h3{font-size:12px;font-weight:600;margin:0;padding:4px 8px;border-radius:4px 4px 0 0}
+.core{background:rgba(63,185,80,.04);border:1px solid rgba(63,185,80,.15)}
 .core h3{color:var(--grn);background:var(--grn-bg)}
+.swing{background:rgba(121,192,255,.04);border:1px solid rgba(121,192,255,.12)}
 .swing h3{color:var(--acc);background:rgba(121,192,255,.06)}
+.avoid{background:rgba(248,81,73,.04);border:1px solid rgba(248,81,73,.12)}
 .avoid h3{color:var(--red);background:var(--red-bg)}
+.tier>div{padding:4px 6px}
 
 /* sig rows */
 .srow{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:12px;border-bottom:1px solid rgba(30,42,54,.3);cursor:pointer}
@@ -151,6 +156,8 @@ body{display:flex;flex-direction:column;height:100dvh}
 </div>
 
 <div class="view" id="v_flow">
+  <div class="tac" id="flow_holdings"></div>
+  <div id="flow_positions"></div>
   <div class="card"><h2>💰 特变电工 资金流向</h2><div id="flow_sh089" class="pr"></div></div>
   <div class="grid2">
     <div class="card"><h2>主力 vs 散户</h2><div id="flow_main_vs" class="pr"></div></div>
@@ -336,8 +343,24 @@ function loadStrategy(){
   fetch('/api/strategy').then(function(r){return r.json();}).then(paintStrategy).catch(function(){});
 }
 
-// flow
+// flow (includes holdings summary)
 function loadFlow(){
+  // holdings summary
+  var ha=INIT&&INIT.holding_analysis, hh=INIT&&INIT.holdings;
+  if(ha&&ha.length){
+    var tp=0,tv=0;ha.forEach(function(p){tp+=p.pnl_amount;tv+=p.market_value;});
+    var ta=hh?hh.total_asset:(tv+1143),cash=hh?hh.cash:1143;
+    var r=((tv)/Math.max(ta,1)*100).toFixed(1);
+    $('#flow_holdings').innerHTML=
+      '<div class="info"><div class="n">¥'+ta.toLocaleString()+'</div><div class="l">总资产</div></div>'+
+      '<div class="'+(tp>=0?'buy':'sell')+'"><div class="n">'+(tp>=0?'+':'')+Math.round(tp).toLocaleString()+'</div><div class="l">浮动盈亏</div></div>'+
+      '<div class="info"><div class="n">'+r+'%</div><div class="l">仓位</div></div>'+
+      '<div class="info"><div class="n">¥'+cash.toFixed(0)+'</div><div class="l">可用</div></div>';
+    $('#flow_positions').innerHTML='<div class="card"><h2>📋 持仓明细</h2>'+ha.map(function(p){
+      return'<div class="pr"><div class="r '+(p.pnl_pct<0?'sell':'buy')+'" style="border-left-color:'+(p.pnl_pct<0?'var(--red)':'var(--grn)')+'"><span class="k">'+p.name+' <small>'+p.shares.toLocaleString()+'股 @¥'+p.cost.toFixed(2)+'</small></span><span class="v" style="color:'+(p.pnl_pct<0?'var(--red)':'var(--grn)')+'">'+(p.pnl_pct>=0?'+':'')+p.pnl_pct.toFixed(2)+'%</span></div></div>';
+    }).join('')+'</div>';
+  }
+  // fund flow data
   $('#flow_sh089').innerHTML='<div class="r"><span class="k">7/17主力</span><span class="v" style="color:var(--red)">-2.16亿</span></div><div class="r"><span class="k">超大单</span><span class="v">-1.66亿</span></div><div class="r"><span class="k">散户</span><span class="v">+1.61亿</span></div>';
   $('#flow_main_vs').innerHTML='<div class="r"><span class="k">主力5日</span><span class="v" style="color:var(--red)">-9.62亿</span></div><div class="r"><span class="k">主力20日</span><span class="v" style="color:var(--red)">-31.75亿</span></div><div class="r"><span class="k">7/17占比</span><span class="v">主力14%/散户36%</span></div>';
   $('#flow_trend').innerHTML='<div class="r"><span class="k">7/13</span><span class="v" style="color:var(--red)">-3.71亿</span></div><div class="r"><span class="k">7/14</span><span class="v" style="color:var(--red)">-1.65亿</span></div><div class="r"><span class="k">7/15</span><span class="v" style="color:var(--red)">-1.52亿</span></div><div class="r"><span class="k">7/16</span><span class="v" style="color:var(--red)">-1.13亿</span></div><div class="r"><span class="k">7/17</span><span class="v" style="color:var(--red)">-2.16亿</span></div>';
