@@ -33,6 +33,13 @@ body{display:flex;flex-direction:column;height:100dvh}
 .cnt{font-size:11px;font-weight:400;color:var(--txt3);margin-left:6px}
 .note{font-size:11px;color:var(--txt3);margin:4px 0;line-height:1.5}
 .empty{color:var(--txt3);text-align:center;padding:24px;font-size:13px}
+/* v2.58 数据时效透明化 + IPO 资金缺口预警 */
+.asof-banner{font-size:10.5px;line-height:1.55;color:var(--txt2);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 9px;margin:0 0 8px}
+.asof-banner b{color:var(--txt1)}
+.asof-banner.warn{border-left:3px solid var(--amber);color:var(--amber)}
+.asof-banner.warn b{color:var(--amber)}
+.instr-card .ihint.warn{color:var(--amber);font-weight:600;font-size:10.5px}
+.instr-card.urgent{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-bg)}
 .alert{background:var(--red-bg);border:1px solid rgba(248,81,73,.2);border-radius:6px;padding:6px 10px;margin:4px 0;font-size:12px}
 .info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.12);border-radius:6px;padding:6px 10px;margin:4px 0;font-size:12px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -297,6 +304,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 <div class="view" id="v_sig">
   <input class="search" id="q" placeholder="搜索代码/名称…">
+  <div class="asof-banner" id="sig_asof"></div>
   <div class="sig-tabs" id="sig_tabs">
     <button data-tier="core" class="on">主仓 <i id="c_core2"></i></button>
     <button data-tier="swing">波段 <i id="c_swing2"></i></button>
@@ -490,7 +498,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 </div>
 
 <div class="view" id="v_perf">
-  <div class="card"><h2>🏆 纯多头绩效</h2><div id="perf"></div></div>
+  <div class="card"><h2>🏆 纯多头绩效</h2><div id="perf"></div><div class="asof-banner" id="perf_note"></div></div>
 </div>
 
 </div><!-- main -->
@@ -654,6 +662,16 @@ function paintSignal(s){
   $('#core').innerHTML=coreSort.map(srowHTML).join('');
   $('#swing').innerHTML=swingSort.map(srowHTML).join('');
   $('#avoid').innerHTML=avoidSort.map(srowHTML).join('');
+  // v2.58 数据时效透明化: 显式标注信号截面截至日, 防把大跌前信号误判为现状
+  var asof=document.getElementById('sig_asof');
+  if(asof){
+    var m=(typeof INIT!=='undefined'&&INIT&&INIT.meta)||{};
+    var dt=m.data_as_of||'';
+    var html='🕓 信号数据截至 <b>'+dt+'</b>（大跌前截面）';
+    if(m.signal_basis)html+='<br>'+m.signal_basis;
+    if(m.live_market)html+='<br>'+m.live_market;
+    asof.innerHTML=html;
+  }
 }
 function loadSignal(){
   if(INIT&&INIT.signal){paintSignal(INIT.signal);return;}
@@ -714,6 +732,9 @@ function paintPerf(j){
   rows.forEach(r=>{h+='<tr><td>top'+(r.frac*100).toFixed(0)+'%</td><td>'+r.hold+'d</td><td style="color:var(--grn)">'+(r.net_ann*100).toFixed(1)+'%</td><td>'+r.net_sharpe.toFixed(2)+'</td><td>'+(r.win_rate*100).toFixed(0)+'%</td></tr>';});
   h+='</tbody></table>';
   $('#perf').innerHTML=h;
+  // v2.58 透明化: 绩效=验证窗样本外回测, 非实盘前瞻
+  var pn=document.getElementById('perf_note');
+  if(pn){pn.textContent='📌 '+(j.note||'回测绩效=验证窗样本外(OOS)回测，非实盘前瞻；数据截至2026-07-02');}
 }
 function loadPerf(){
   if(INIT&&INIT.perf){paintPerf(INIT.perf);return;}
@@ -780,7 +801,18 @@ function buildInstructions(d){
     } else {
       ipoDet=ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · '+(ip.lots||'?')+'签 · 资金优先';
     }
-    cards.push({id:'ipo',act:'buy',title:ip.name+'('+ip.code+')',detail:ipoDet});
+    // v2.58 缴款资金缺口预警: 可用现金 vs 需缴款
+    var cash=(typeof INIT!=='undefined'&&INIT&&INIT.holdings&&INIT.holdings.cash)||0;
+    var need=ip.capital_needed||0;
+    var gap=need-cash;
+    var ipoWarn, ipoCls='urgent';
+    if(gap>0){
+      ipoWarn='⚠️ 资金缺口 ¥'+gap.toLocaleString()+'（可用现金仅 ¥'+Number(cash).toLocaleString()+'）→ 须周一卖出回款；7/21 16:00前未缴款视为弃购，12月内弃购3次禁打新6个月';
+    } else {
+      ipoWarn='✅ 资金充足，7/21 16:00前自动扣款';
+      ipoCls='';
+    }
+    cards.push({id:'ipo',act:'buy',cls:ipoCls,title:ip.name+'('+ip.code+')',detail:ipoDet,warn:ipoWarn});
   }
   // sell cards
   sells.forEach(function(b,i){
@@ -793,8 +825,8 @@ function buildInstructions(d){
   // render
   cards.forEach(function(c){
     var st=state[c.id]||'';
-    var cls=st?' done':'';
-    h+='<div class="instr-card'+cls+'" data-iid="'+c.id+'"><span class="iaction-hint">⋯</span><div class="ihdr"><span class="iact '+c.act+'">'+(c.act==='sell'?'卖出':c.act==='buy'?'申购':'风控')+'</span>'+(st?'<span class="istatus" style="font-size:10px;color:var(--txt3)">'+st+'</span>':'')+'</div><div class="idetail"><b>'+c.title+'</b></div><div class="idetail">'+c.detail+'</div>'+(c.hint?'<div class="ihint">'+c.hint+'</div>':'')+'</div>';
+    var cls=(st?' done':'')+(c.cls?' '+c.cls:'');
+    h+='<div class="instr-card'+cls+'" data-iid="'+c.id+'"><span class="iaction-hint">⋯</span><div class="ihdr"><span class="iact '+c.act+'">'+(c.act==='sell'?'卖出':c.act==='buy'?'申购':'风控')+'</span>'+(st?'<span class="istatus" style="font-size:10px;color:var(--txt3)">'+st+'</span>':'')+'</div><div class="idetail"><b>'+c.title+'</b></div><div class="idetail">'+c.detail+'</div>'+(c.hint?'<div class="ihint">'+c.hint+'</div>':'')+(c.warn?'<div class="ihint warn">'+c.warn+'</div>':'')+'</div>';
   });
   $('#instr_list').innerHTML=h||'<div class="empty">暂无交易指令</div>';
   // v2.51 双击触发菜单（替代长按，避免 iOS 系统菜单干扰）
