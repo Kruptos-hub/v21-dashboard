@@ -97,6 +97,8 @@ body{display:flex;flex-direction:column;height:100dvh}
   .tier h3 small{display:inline}
   .tier .srow{font-size:12px;padding:4px 6px}
   .tier .srow .nm{max-width:120px}
+  .swipe-hint{display:block;text-align:center;color:var(--txt3);font-size:11px;
+    padding:6px 0 2px;letter-spacing:1px;opacity:.7}
 }
 
 /* ticker items */
@@ -305,6 +307,7 @@ body{display:flex;flex-direction:column;height:100dvh}
     <div class="tier swing" id="tier_swing"><h3>波段 · T+0/T+1 <span class="cnt" id="c_swing"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名3%~8% 短线标的</small></h3><div id="swing"></div></div>
     <div class="tier avoid" id="tier_avoid"><h3>回避 · 不持仓 <span class="cnt" id="c_avoid"></span><small style="font-weight:400;color:var(--txt3);margin-left:8px">排名后8% V21看空</small></h3><div id="avoid"></div></div>
   </div>
+  <div class="swipe-hint">‹ 左右滑动切换 ›</div>
 </div>
 
 <div class="view" id="v_briefing">
@@ -656,10 +659,11 @@ function loadSignal(){
   if(INIT&&INIT.signal){paintSignal(INIT.signal);return;}
   fetch('/api/signal').then(r=>r.json()).then(j=>{if(j.ok)paintSignal(j.signal);});
 }
-// v2.53 手机端雷达页分段标签切换
+// v2.53 手机端雷达页分段标签切换 + 卡片左右滑动
 (function(){
   var tabs=document.getElementById('sig_tabs');
   if(!tabs)return;
+  var TIER_ORDER=['core','swing','avoid'];
   function applyTier(tier){
     tabs.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.tier===tier);});
     document.querySelectorAll('.tier').forEach(function(t){t.classList.toggle('show',t.id==='tier_'+tier);});
@@ -667,6 +671,22 @@ function loadSignal(){
   tabs.querySelectorAll('button').forEach(function(b){
     b.addEventListener('click',function(){applyTier(b.dataset.tier);});
   });
+  // 手机竖屏: 卡片区域左右滑动切换 主仓↔波段↔回避
+  var host=document.getElementById('v_sig');
+  var sx=null,sy=null,ok=false;
+  host.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1)return;
+    if(e.target&&e.target.closest&&e.target.closest('#q'))return; // 搜索框不触发
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY; ok=true;
+  },{passive:true});
+  host.addEventListener('touchend',function(e){
+    if(!ok||sx==null)return; ok=false;
+    var t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy))return; // 仅当横向为主且足够长
+    var cur=TIER_ORDER.indexOf(tabs.querySelector('button.on').dataset.tier);
+    var nx=cur+(dx<0?1:-1);
+    if(nx>=0&&nx<TIER_ORDER.length)applyTier(TIER_ORDER[nx]);
+  },{passive:true});
   // 初始化: 手机端默认显示主仓
   applyTier('core');
 })();
@@ -752,7 +772,16 @@ function buildInstructions(d){
   var state=JSON.parse(localStorage.getItem('krup_instr')||'{}');
   var cards=[],h='';
   // IPO card
-  if(ip.name)cards.push({id:'ipo',act:'buy',title:ip.name+'('+ip.code+')',detail:ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · '+ip.lots+'签 · 资金优先'});
+  if(ip.name){
+    var ipoDet;
+    if(/中签/.test(ip.result_status||'')){
+      var won=ip.shares_won||((ip.lots||0)*500)||'?';
+      ipoDet='✅ 已中签 '+won+'股 · '+ip.payment_due+'前缴款'+(ip.capital_needed?(' ¥'+Number(ip.capital_needed).toLocaleString()):' (金额=500×发行价)')+' · 资金优先';
+    } else {
+      ipoDet=ip.result_date+'公布中签 · '+ip.payment_due+'缴款 · '+(ip.lots||'?')+'签 · 资金优先';
+    }
+    cards.push({id:'ipo',act:'buy',title:ip.name+'('+ip.code+')',detail:ipoDet});
+  }
   // sell cards
   sells.forEach(function(b,i){
     cards.push({id:'sell_'+i,act:'sell',title:'第'+(i+1)+'批减仓: '+b.shares.toLocaleString()+'股 @¥'+b.price,detail:'14:45前无成交则市价出5000股'+(i>0?' · 剩余批次':''),hint:'目标价 ¥'+b.price});
