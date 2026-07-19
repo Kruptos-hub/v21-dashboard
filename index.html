@@ -794,7 +794,7 @@ function buildInstructions(d){
   cards.forEach(function(c){
     var st=state[c.id]||'';
     var cls=st?' done':'';
-    h+='<div class="instr-card'+cls+'" data-iid="'+c.id+'"><span class="iaction-hint">⋯</span><div class="ihdr"><span class="iact '+c.act+'">'+(c.act==='sell'?'卖出':c.act==='buy'?'申购':'风控')+'</span>'+(st?'<span style="font-size:10px;color:var(--txt3)">'+st+'</span>':'')+'</div><div class="idetail"><b>'+c.title+'</b></div><div class="idetail">'+c.detail+'</div>'+(c.hint?'<div class="ihint">'+c.hint+'</div>':'')+'</div>';
+    h+='<div class="instr-card'+cls+'" data-iid="'+c.id+'"><span class="iaction-hint">⋯</span><div class="ihdr"><span class="iact '+c.act+'">'+(c.act==='sell'?'卖出':c.act==='buy'?'申购':'风控')+'</span>'+(st?'<span class="istatus" style="font-size:10px;color:var(--txt3)">'+st+'</span>':'')+'</div><div class="idetail"><b>'+c.title+'</b></div><div class="idetail">'+c.detail+'</div>'+(c.hint?'<div class="ihint">'+c.hint+'</div>':'')+'</div>';
   });
   $('#instr_list').innerHTML=h||'<div class="empty">暂无交易指令</div>';
   // v2.51 双击触发菜单（替代长按，避免 iOS 系统菜单干扰）
@@ -827,15 +827,26 @@ function showInstrMenu_v2(el){
   window._instrTimer=setTimeout(function(){menu.classList.remove('on');},5000);
 }
 // 菜单按钮事件
+// 更新指令卡状态: 定位/创建「唯一」状态 span 并替换文本(绝不追加, 避免多次双击叠加)
+function setInstrStatus(el, txt){
+  if(!el)return;
+  var hdr=el.querySelector('.ihdr');
+  if(!hdr)return;
+  var s=hdr.querySelector('.istatus');
+  if(!s){ s=document.createElement('span'); s.className='istatus'; hdr.appendChild(s); }
+  s.style.cssText='font-size:10px;color:var(--txt3)';
+  s.textContent=txt;            // 替换而非追加 -> 多次双击只显示最新状态
+  el.classList.add('done');
+  var hint=el.querySelector('.iaction-hint'); if(hint)hint.style.display='none';
+}
 document.getElementById('instr_done').onclick=function(){
   if(!_instrTarget)return;
   var id=_instrTarget.dataset.iid;
   var state=JSON.parse(localStorage.getItem('krup_instr')||'{}');
-  state[id]='✅已执行 '+new Date().toLocaleDateString('zh-CN');
+  var txt='✅已执行 '+new Date().toLocaleDateString('zh-CN');
+  state[id]=txt;
   localStorage.setItem('krup_instr',JSON.stringify(state));
-  _instrTarget.classList.add('done');
-  _instrTarget.querySelector('.iaction-hint').style.display='none';
-  _instrTarget.querySelector('.ihdr').insertAdjacentHTML('beforeend','<span style="font-size:10px;color:var(--txt3)">✅已执行</span>');
+  setInstrStatus(_instrTarget, txt);
   document.getElementById('instr_menu').classList.remove('on');
   _instrTarget=null;
 };
@@ -843,11 +854,10 @@ document.getElementById('instr_skip').onclick=function(){
   if(!_instrTarget)return;
   var id=_instrTarget.dataset.iid;
   var state=JSON.parse(localStorage.getItem('krup_instr')||'{}');
-  state[id]='⏭已跳过';
+  var txt='⏭已跳过';
+  state[id]=txt;
   localStorage.setItem('krup_instr',JSON.stringify(state));
-  _instrTarget.classList.add('done');
-  _instrTarget.querySelector('.iaction-hint').style.display='none';
-  _instrTarget.querySelector('.ihdr').insertAdjacentHTML('beforeend','<span style="font-size:10px;color:var(--txt3)">⏭已跳过</span>');
+  setInstrStatus(_instrTarget, txt);
   document.getElementById('instr_menu').classList.remove('on');
   _instrTarget=null;
 };
