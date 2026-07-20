@@ -4,15 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache">
-<title>KrupstockSys V21</title>
+<title>KrupstockSys</title>
 <style>
 :root{
   --bg:#080c12;--surface:#0f151c;--card:#141b24;
   --border:#1e2a36;--border-light:#253240;
-  --txt:#e6edf3;--txt2:#8b949e;--txt3:#5a6570;
-  --grn:#3fb950;--red:#f85149;--amber:#d29922;--blue:#58a6ff;--acc:#79c0ff;
-  --grn-bg:rgba(63,185,80,.08);--red-bg:rgba(248,81,73,.08);--amber-bg:rgba(210,153,34,.08);
+  --txt:#e6edf3;--txt1:#e6edf3;--txt2:#8b949e;--txt3:#5a6570;
+  --grn:#3fb950;--red:#f85149;--amber:#e3a008;--blue:#58a6ff;--acc:#79c0ff;
+  --acc2:#a8d8ff;
+  --grn-bg:rgba(63,185,80,.08);--red-bg:rgba(248,81,73,.08);--amber-bg:rgba(227,160,8,.09);
+  --hover:#19222c;--focus:rgba(121,192,255,.45);
+  --shadow:0 4px 18px rgba(0,0,0,.35);
 }
+*:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
   font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
@@ -22,7 +26,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 /* topbar */
 .topbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
-  height:40px;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+  min-height:40px;padding:calc(env(safe-area-inset-top,0px)) 16px;background:var(--surface);border-bottom:1px solid var(--border)}
 .topbar-brand{font-size:15px;font-weight:800;color:var(--txt);white-space:nowrap}
 .topbar-mid{display:flex;gap:18px;font-size:13px;color:var(--txt2);font-variant-numeric:tabular-nums}
 .topbar-right{font-size:12px;color:var(--txt3)}
@@ -33,6 +37,19 @@ body{display:flex;flex-direction:column;height:100dvh}
 .cnt{font-size:11px;font-weight:400;color:var(--txt3);margin-left:6px}
 .note{font-size:11px;color:var(--txt3);margin:4px 0;line-height:1.5}
 .empty{color:var(--txt3);text-align:center;padding:24px;font-size:13px}
+
+/* v2.62 加载骨架屏: shimmer 动画占位, 数据到达后由 paint* 直接替换 innerHTML */
+.skeleton{position:relative;overflow:hidden;border-radius:6px;
+  background:linear-gradient(100deg,var(--card) 28%,var(--border-light) 50%,var(--card) 72%);
+  background-size:220% 100%;animation:skShimmer 1.3s ease-in-out infinite}
+@keyframes skShimmer{0%{background-position:220% 0}100%{background-position:-220% 0}}
+.sk-row{height:12px;margin:7px 0;border-radius:4px}
+.sk-row.w30{width:30%}.sk-row.w45{width:45%}.sk-row.w60{width:60%}.sk-row.w75{width:75%}.sk-row.w90{width:90%}
+.sk-card{border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.sk-card:last-child{margin-bottom:0}
+.sk-card .sk-row:first-child{width:52%;height:14px}
+.sk-dash{border-style:dashed!important}
+.sk-head{height:16px!important;width:48%!important}
 /* v2.58 数据时效透明化 + IPO 资金缺口预警 */
 .asof-banner{font-size:10.5px;line-height:1.55;color:var(--txt2);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 9px;margin:0 0 8px}
 .asof-banner b{color:var(--txt1)}
@@ -47,7 +64,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 /* sidebar */
 .side{display:none}
-.main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px}
+.main{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px}
 /* v2.50 默认隐藏 botbar, 竖屏再启用 */
 .botbar{display:none}
 @media(min-width:900px){
@@ -55,10 +72,10 @@ body{display:flex;flex-direction:column;height:100dvh}
   .topbar{flex-basis:100%}
   .side{display:flex;flex-direction:column;width:130px;flex:0 0 130px;
     background:var(--surface);border-right:1px solid var(--border);padding:10px 6px;gap:4px}
-  .side .item{padding:14px 10px;border-radius:8px;font-size:14px;color:var(--txt2);
+  .side .item{padding:14px 10px;min-height:46px;border-radius:8px;font-size:14px;color:var(--txt2);
     cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;user-select:none;-webkit-touch-callout:none;font-weight:500;
     transition:background .15s,color .15s}
-  .side .item:hover{background:var(--card);color:var(--txt)}
+  .side .item:hover{background:var(--hover);color:var(--txt)}
   .side .item.on{background:var(--card);color:var(--acc);font-weight:700;
     animation:sideGlow 2.5s ease-in-out infinite}
   @keyframes sideGlow{0%,100%{box-shadow:inset 0 0 0 1px rgba(121,192,255,.08)}40%{box-shadow:inset 0 0 0 2px rgba(121,192,255,.35),0 0 12px rgba(121,192,255,.12)}70%{box-shadow:inset 0 0 0 1px rgba(121,192,255,.2),0 0 6px rgba(121,192,255,.06)}}
@@ -67,10 +84,14 @@ body{display:flex;flex-direction:column;height:100dvh}
 /* portrait / mobile */
 @media(max-width:899px){
   .grid2{grid-template-columns:1fr}
+  /* 竖屏顶栏: 压缩间距, 隐藏版本号, 防止指标挤压溢出 */
+  .topbar-mid{font-size:11px;gap:8px;min-width:0;overflow:hidden}
+  .topbar-brand small{display:none}
+  .topbar-brand{font-size:13px}
   .botbar{display:flex;flex:0 0 auto;background:var(--surface);border-top:1px solid var(--border);
     padding:4px 8px calc(4px + env(safe-area-inset-bottom,0px));gap:4px;z-index:10}
-  .botbar .item{flex:1;padding:10px 6px;border-radius:8px;font-size:12px;color:var(--txt2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;user-select:none;-webkit-touch-callout:none;font-weight:500;transition:background .15s,color .15s;text-align:center}
-  .botbar .item:hover{background:var(--card);color:var(--txt)}
+  .botbar .item{flex:1;min-height:46px;padding:10px 6px;border-radius:8px;font-size:12px;color:var(--txt2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;user-select:none;-webkit-touch-callout:none;font-weight:500;transition:background .15s,color .15s;text-align:center}
+  .botbar .item:hover{background:var(--hover);color:var(--txt)}
   .botbar .item.on{background:var(--card);color:var(--acc);font-weight:700}
   /* v2.50 竖屏 sheet 改为底部弹出, 避免遮挡 50% 屏幕 */
   .sheet_box{position:absolute!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;
@@ -106,6 +127,9 @@ body{display:flex;flex-direction:column;height:100dvh}
   .tier .srow .nm{max-width:120px}
   .swipe-hint{display:block;text-align:center;color:var(--txt3);font-size:11px;
     padding:6px 0 2px;letter-spacing:1px;opacity:.7}
+  /* 超小屏顶栏进一步压缩, 防指标溢出被裁切 */
+  .topbar-mid{font-size:10px;gap:6px}
+  .topbar-right{font-size:10px}
 }
 
 /* ticker items */
@@ -124,7 +148,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 .briefing h2{font-size:13px;margin:10px 0 3px;color:var(--acc);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:2px;break-inside:avoid}
 .briefing h3{font-size:12px;margin:6px 0 3px;font-weight:600;break-inside:avoid}
 .briefing p{margin:3px 0;font-size:13px;color:var(--txt2)}
-.briefing table{width:100%;border-collapse:collapse;margin:3px 0;font-size:12px;break-inside:avoid}
+.briefing table{width:100%;max-width:100%;border-collapse:collapse;margin:3px 0;font-size:12px;break-inside:avoid}
 .briefing td{padding:3px 5px;border-bottom:1px solid rgba(30,42,54,.3)}
 .briefing td:first-child{color:var(--txt2);white-space:nowrap}
 .briefing td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
@@ -180,7 +204,7 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 .search{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;
   background:var(--surface);color:var(--txt);font-size:14px;margin-bottom:8px;outline:none}
-.search:focus{border-color:var(--acc)}
+.search:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--focus)}
 
 /* news detail overlay */
 .noverlay{position:fixed;inset:0;z-index:45;display:none;align-items:flex-end;justify-content:center}
@@ -264,16 +288,23 @@ body{display:flex;flex-direction:column;height:100dvh}
 
 /* pulse badge */
 .pulse-badge{display:inline-block;animation:blink 1.2s infinite;font-weight:700}
+.alert-banner{display:none;background:linear-gradient(90deg,#c0392b,#e74c3c);color:#fff;
+  font-size:12px;padding:6px 12px;text-align:center;font-weight:600;letter-spacing:.3px;
+  box-shadow:0 2px 10px rgba(192,57,43,.45);animation:pulseA 1.6s ease-in-out infinite;
+  position:sticky;top:0;z-index:60}
+.alert-banner b{font-weight:800}
+@keyframes pulseA{0%,100%{opacity:1}50%{opacity:.8}}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <div class="topbar-brand">KrupstockSys <small style="color:var(--grn);font-size:10px">v2.54</small></div>
+  <div class="topbar-brand">KrupstockSys <small style="color:var(--grn);font-size:10px">v2.62</small></div>
   <div class="topbar-mid">
     <span id="tb_hs">沪深300 —</span><span id="tb_pos">特变 —</span><span id="tb_model" style="font-size:11px;color:var(--grn)">V21 —</span>
   </div>
   <div class="topbar-right"><span id="clk">—</span></div>
 </div>
+<div id="train_alert" class="alert-banner" style="display:none"></div>
 <div class="side" id="side">
   <div class="item on" data-v="flow">📊 持仓</div>
   <div class="item" data-v="briefing">📰 简报</div>
@@ -321,11 +352,11 @@ body{display:flex;flex-direction:column;height:100dvh}
 <div class="view" id="v_briefing">
   <div class="card" style="border:2px solid var(--acc);margin-bottom:8px;box-shadow:0 0 12px rgba(121,192,255,.08)">
     <h2 id="plan_title" style="color:var(--acc);font-size:15px">📋 周一交易计划</h2>
-    <div id="briefing_plan"><div class="empty">加载中…</div></div>
+    <div id="briefing_plan"><div class="skeleton" style="padding:8px 10px"><div class="sk-row w60"></div><div class="sk-row w90"></div><div class="sk-row w45"></div><div class="sk-row w75"></div></div></div>
   </div>
   <div class="card" id="instr_section">
     <h2>📋 今日指令 <span class="cnt" style="font-size:10px">双击标记状态</span></h2>
-    <div id="instr_list"><div class="empty">加载中…</div></div>
+    <div id="instr_list"><div class="sk-card"><div class="sk-row w60"></div><div class="sk-row w90"></div><div class="sk-row w45"></div></div><div class="sk-card"><div class="sk-row w75"></div><div class="sk-row w90"></div></div></div>
   </div>
   <div class="card spotlight" id="spotlight" style="display:none">
     <h2>⚠ <span class="pulse-badge">特别关注</span> <span class="cnt" id="spot_cnt"></span></h2>
@@ -490,14 +521,21 @@ body{display:flex;flex-direction:column;height:100dvh}
   </div>
   </div><!-- /grid2 -->
 
-  <div id="brief_content" class="briefing"></div>
+  <div id="brief_content" class="briefing">
+    <div class="sk-card sk-dash"><div class="sk-row sk-head"></div><div class="sk-row w90"></div><div class="sk-row w75"></div></div>
+    <div class="sk-card sk-dash"><div class="sk-row sk-head"></div><div class="sk-row w90"></div><div class="sk-row w45"></div></div>
+  </div>
   <div class="grid2">
-    <div class="card"><h2>📈 关键位</h2><div id="briefing_levels"><div class="empty">加载中…</div></div></div>
-    <div class="card"><h2>🛡️ 风控 + V21</h2><div id="briefing_risk"><div class="empty">加载中…</div></div></div>
+    <div class="card"><h2>📈 关键位</h2><div id="briefing_levels"><div class="skeleton" style="padding:8px 10px"><div class="sk-row w90"></div><div class="sk-row w60"></div><div class="sk-row w75"></div><div class="sk-row w45"></div></div></div></div>
+    <div class="card"><h2>🛡️ 风控 + V21</h2><div id="briefing_risk"><div class="skeleton" style="padding:8px 10px"><div class="sk-row w75"></div><div class="sk-row w90"></div><div class="sk-row w45"></div><div class="sk-row w60"></div></div></div></div>
   </div>
 </div>
 
 <div class="view" id="v_perf">
+  <div class="card" id="training_card" style="border-color:var(--acc);margin-bottom:8px;box-shadow:0 0 8px rgba(121,192,255,.06)">
+    <h2>🧠 V22 训练状态 <span class="cnt" id="tr_ver"></span></h2>
+    <div id="training_status"><div class="skeleton" style="padding:8px 10px"><div class="sk-row w90"></div><div class="sk-row w75"></div><div class="sk-row w60"></div><div class="sk-row w90"></div><div class="sk-row w45"></div></div></div>
+  </div>
   <div class="card"><h2>🏆 纯多头绩效</h2><div id="perf"></div><div class="asof-banner" id="perf_note"></div></div>
 </div>
 
@@ -552,6 +590,16 @@ var INIT=null;
 var RT={};
 var $=s=>document.querySelector(s);
 
+// v2.62 骨架屏: 仅在容器尚未填充(仍为骨架/空/无子节点)时注入, 避免轮询刷新时闪烁
+var SK_ROWS='<div class="skeleton" style="padding:8px 10px"><div class="sk-row w60"></div><div class="sk-row w90"></div><div class="sk-row w45"></div><div class="sk-row w75"></div></div>';
+var SK_CARDS='<div class="sk-card"><div class="sk-row w60"></div><div class="sk-row w90"></div><div class="sk-row w45"></div></div><div class="sk-card"><div class="sk-row w75"></div><div class="sk-row w90"></div></div>';
+var SK_BRIEF='<div class="sk-card sk-dash"><div class="sk-row sk-head"></div><div class="sk-row w90"></div><div class="sk-row w75"></div></div><div class="sk-card sk-dash"><div class="sk-row sk-head"></div><div class="sk-row w90"></div><div class="sk-row w45"></div></div>';
+function skIfLoading(id,html){
+  var el=document.getElementById(id);
+  if(!el)return;
+  if(el.querySelector('.skeleton')||el.querySelector('.empty')||el.children.length===0)el.innerHTML=html;
+}
+
 function show(v){
   document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v_'+v));
   document.querySelectorAll('.side .item').forEach(e=>e.classList.toggle('on',e.dataset.v===v));
@@ -559,14 +607,57 @@ function show(v){
 }
 document.addEventListener('click',e=>{var t=e.target.closest('[data-v]');if(t)show(t.dataset.v);});
 
-// gate
-if(localStorage.getItem('krup_v2_unlocked')){$('#gate').style.display='none';}else{
-  $('#gate_btn').onclick=function(){
-    var pw=$('#gate_inp').value;
-    if(pw==='843812'){localStorage.setItem('krup_v2_unlocked','1');$('#gate').style.display='none';$('#gate_msg').textContent='';}
-    else{$('#gate_msg').textContent='密码错误, 请重试';}
+// ── S1/S2 安全：改为后端令牌鉴权（原硬编码 '843812' 已彻底移除）──
+var AUTH_TOKEN = localStorage.getItem('krup_token') || '';
+
+// 拦截全局 fetch：仅对同源请求注入令牌；遇 401 清空令牌并重新弹门。
+// 跨域请求(如 qt.gtimg.cn 实时行情)不注入，避免触发 CORS 预检导致行情失效。
+(function(){
+  var _of = window.fetch.bind(window);
+  window.fetch = function(u, o){
+    o = o || {};
+    var sameOrigin = (typeof u === 'string') && u.indexOf('http') !== 0 && u.indexOf('//') !== 0;
+    if (AUTH_TOKEN && sameOrigin) {
+      o.headers = o.headers || {};
+      if (o.headers instanceof Headers) o.headers.append('X-Auth-Token', AUTH_TOKEN);
+      else o.headers['X-Auth-Token'] = AUTH_TOKEN;
+    }
+    return _of(u, o).then(function(r){
+      if (r.status === 401 && String(u).indexOf('/api/login') < 0) {
+        localStorage.removeItem('krup_token'); AUTH_TOKEN='';
+        showGate();
+      }
+      return r;
+    });
   };
-  $('#gate_inp').onkeydown=function(e){if(e.key==='Enter')$('#gate_btn').click();};
+})();
+
+function showGate(){ var g=$('#gate'); if(g) g.style.display=''; }
+function doLogin(pw){
+  return fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pw})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && d.ok && d.token) {
+        AUTH_TOKEN = d.token;
+        localStorage.setItem('krup_token', d.token);
+        var g=$('#gate'); if(g) g.style.display='none';
+        var m=$('#gate_msg'); if(m) m.textContent='';
+        location.reload();   // 用令牌重载，重新拉取受保护数据
+        return true;
+      }
+      var m2=$('#gate_msg'); if(m2) m2.textContent='密码错误, 请重试';
+      return false;
+    })
+    .catch(function(){ var m3=$('#gate_msg'); if(m3) m3.textContent='登录失败'; return false; });
+}
+
+// 密码门：有令牌则直接放行（失效时首请求 401 会自动弹门），否则弹出输入
+if (AUTH_TOKEN) {
+  var g0=$('#gate'); if(g0) g0.style.display='none';
+} else {
+  showGate();
+  var btn=$('#gate_btn'); if(btn) btn.onclick=function(){ doLogin($('#gate_inp').value); };
+  var inp=$('#gate_inp'); if(inp) inp.onkeydown=function(e){ if(e.key==='Enter' && btn) btn.click(); };
 }
 
 // v2.50 弹窗互斥: 关闭其他弹窗再开新的
@@ -654,20 +745,25 @@ function paintSignal(s){
   if(c2)c2.textContent=s.buy_core.length;
   if(sw2)sw2.textContent=s.buy_swing.length;
   if(av2)av2.textContent=s.avoid.length;
+  // v2.61 搜索过滤: 按代码/名称实时筛选(大小写无关)
+  var q=(($('#q')&&$('#q').value)||'').trim().toLowerCase();
+  function filt(arr){return q?arr.filter(function(o){return (o.code||'').toLowerCase().indexOf(q)>=0||(o.name||'').toLowerCase().indexOf(q)>=0;}):arr;}
+  var coreF=filt(s.buy_core),swingF=filt(s.buy_swing),avoidF=filt(s.avoid);
   // v2.54 保险排序: 即使后端数据未排序, 前端也按推荐分重排(双保险)
   // core/swing 降序(最高推荐在前); avoid 升序(最该回避的最低分在前)
-  var coreSort=s.buy_core.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
-  var swingSort=s.buy_swing.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
-  var avoidSort=s.avoid.slice().sort(function(a,b){return (a.score||0)-(b.score||0);});
-  $('#core').innerHTML=coreSort.map(srowHTML).join('');
-  $('#swing').innerHTML=swingSort.map(srowHTML).join('');
-  $('#avoid').innerHTML=avoidSort.map(srowHTML).join('');
+  var coreSort=coreF.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var swingSort=swingF.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var avoidSort=avoidF.slice().sort(function(a,b){return (a.score||0)-(b.score||0);});
+  $('#core').innerHTML=coreSort.length?coreSort.map(srowHTML).join(''):'<div class="empty">无匹配</div>';
+  $('#swing').innerHTML=swingSort.length?swingSort.map(srowHTML).join(''):'<div class="empty">无匹配</div>';
+  $('#avoid').innerHTML=avoidSort.length?avoidSort.map(srowHTML).join(''):'<div class="empty">无匹配</div>';
   // v2.58 数据时效透明化: 显式标注信号截面截至日, 防把大跌前信号误判为现状
   var asof=document.getElementById('sig_asof');
   if(asof){
     var m=(typeof INIT!=='undefined'&&INIT&&INIT.meta)||{};
     var dt=m.data_as_of||'';
-    var html='🕓 信号数据截至 <b>'+dt+'</b>（大跌前截面）';
+    // v2.61 去冗余: 截至日本身即含日期, 不再重复 "7-17"; 缺失时回退提示
+    var html='🕓 信号数据截至 <b>'+(dt||'?')+'</b> 收盘截面';
     if(m.signal_basis)html+='<br>'+m.signal_basis;
     if(m.live_market)html+='<br>'+m.live_market;
     asof.innerHTML=html;
@@ -717,8 +813,27 @@ $('#q').addEventListener('focus',function(){setTimeout(function(){
 // status → topbar model indicator
 function paintStatus(s){
   var t=s.training||{},ch=((s.model||{}).champion||{}).name||'Run9';
-  var st=t.running?'🟢':t.found?'🟡':'⚪';
-  $('#tb_model').innerHTML='V21 '+ch+' '+st+(t.epoch?' ep'+t.epoch:'');
+  var h=t.health||'healthy';
+  var isBad=(h==='error'||h==='stalled'||h==='dead');
+  var st,color;
+  if(isBad){st='🔴异常';color='var(--red)';}
+  else if(t.running){st='🟢训练中';color='var(--grn)';}
+  else if(t.found){st='🟡已停';color='var(--amber)';}
+  else{st='⚪';color='var(--txt2)';}
+  var ep=t.epoch?(' ep'+t.epoch):(t.health_last_epoch?(' '+t.health_last_epoch):'');
+  $('#tb_model').innerHTML='<span style="color:var(--acc)">V22</span> '+ch+
+    ' <span style="color:'+color+'">'+st+ep+'</span>';
+  // 全局告警横幅: 训练异常时显示, 正常时隐藏
+  var alert=document.getElementById('train_alert');
+  if(alert){
+    if(isBad){
+      alert.style.display='block';
+      alert.innerHTML='⚠ <b>训练异常</b>：'+(t.health_detail||h)+
+        ' <span style="opacity:.75">('+(t.health_checked_at||'')+')</span>';
+    }else{
+      alert.style.display='none';
+    }
+  }
 }
 function loadStatus(){
   if(INIT&&INIT.status){paintStatus(INIT.status);return;}
@@ -734,12 +849,43 @@ function paintPerf(j){
   $('#perf').innerHTML=h;
   // v2.58 透明化: 绩效=验证窗样本外回测, 非实盘前瞻
   var pn=document.getElementById('perf_note');
-  if(pn){pn.textContent='📌 '+(j.note||'回测绩效=验证窗样本外(OOS)回测，非实盘前瞻；数据截至2026-07-02');}
+  if(pn){pn.textContent='📌 '+(j.note||'回测绩效=验证窗样本外(OOS)回测, 非实盘前瞻; 数据已刷新至2026-07-17');}
 }
 function loadPerf(){
   if(INIT&&INIT.perf){paintPerf(INIT.perf);return;}
   fetch('/api/perf').then(r=>r.json()).then(paintPerf);
 }
+// -- V22 训练状态 (v2.61: 改用 /api/status 实时; 失败回落 init.json 快照) --
+function paintTraining(s, snapshot){
+  var t=s.training||{},el=document.getElementById('training_status'),ver=document.getElementById('tr_ver');
+  if(ver){ver.textContent='91维/4.07M参/7路融合';}
+  if(!el)return;
+  if(!t.found&&!t.running){el.innerHTML='<div class="empty">无活跃训练</div>';return;}
+  var h='<div class="pr">';
+  h+='<div class="r"><span class="k">架构</span><span class="v">V22 (CNN+7路融合)</span></div>';
+  h+='<div class="r"><span class="k">维度</span><span class="v">OHLCV+25+10+12+feat49(39d)+inj(12d)+industry=91维</span></div>';
+  h+='<div class="r"><span class="k">参数</span><span class="v">4,065,835 (4.07M)</span></div>';
+  h+='<div class="r"><span class="k">截面</span><span class="v">2,901 截面 × 5,126只</span></div>';
+  var stTxt=t.running?'🟢 训练中'+(snapshot?'（快照）':'（实时）'):'⚪ 已完成';
+  h+='<div class="r"><span class="k">状态</span><span class="v" style="color:'+(t.running?'var(--grn)':'var(--txt2)')+'">'+stTxt+(t.epoch!=null?(' · ep'+t.epoch):'')+'</span></div>';
+  if(t.best_val!=null)h+='<div class="r"><span class="k">最优损失</span><span class="v">'+Number(t.best_val).toFixed(5)+'</span></div>';
+  else if(t.best_loss!=null)h+='<div class="r"><span class="k">最优损失</span><span class="v">'+Number(t.best_loss).toFixed(5)+'</span></div>';
+  if(t.health_val_loss!=null&&t.health_val_loss!=='')h+='<div class="r"><span class="k">最新损失</span><span class="v">train '+Number(t.health_train_loss).toFixed(5)+' / val '+Number(t.health_val_loss).toFixed(5)+'</span></div>';
+  if(t.last_ckpt)h+='<div class="r"><span class="k">最后检查点</span><span class="v">'+t.last_ckpt+'</span></div>';
+  h+='</div>';
+  el.innerHTML=h;
+}
+function loadTraining(){
+  skIfLoading('training_status',SK_ROWS);
+  fetch('/api/status').then(function(r){return r.json();}).then(function(s){
+    paintStatus(s);          // 顶栏模型指标实时刷新
+    paintTraining(s,false);  // 绩效页训练卡片
+  }).catch(function(){
+    // 纯静态部署无 /api/status → 用 init.json 快照兜底, 标注非实时
+    if(INIT&&INIT.status){paintStatus(INIT.status);paintTraining(INIT.status,true);}
+  });
+}
+setInterval(loadTraining,120000);
 
 // init
 function tryInit(d){
@@ -749,7 +895,7 @@ function tryInit(d){
   if(d.perf)paintPerf(d.perf);
   if(d.briefing)paintBriefing(d.briefing);
   if(d.strategy){paintStrategy(d.strategy);buildInstructions(d.strategy);}
-  loadFlow();
+  loadFlow();loadTraining();
 }
 function paintStrategy(d){
   if(!d)return;
@@ -783,6 +929,9 @@ function paintStrategy(d){
 }
 function loadStrategy(){
   if(INIT&&INIT.strategy){paintStrategy(INIT.strategy);buildInstructions(INIT.strategy);return;}
+  skIfLoading('briefing_plan',SK_ROWS);skIfLoading('instr_list',SK_CARDS);
+  skIfLoading('briefing_levels',SK_ROWS);skIfLoading('briefing_risk',SK_ROWS);
+  skIfLoading('brief_content',SK_BRIEF);
   fetch('/api/strategy').then(function(r){return r.json();}).then(function(d){paintStrategy(d);buildInstructions(d);}).catch(function(){});
 }
 // instruction cards with long-press
@@ -1054,12 +1203,9 @@ fetch('init.json').then(function(r){return r.json();}).then(tryInit).catch(funct
   loadStatus();loadSignal();loadFlow();loadPerf();
   fetch('/api/strategy').then(function(r){return r.json();}).then(function(d){
     if(d&&d.holding){$('#tb_hs').textContent='沪深300 3764';$('#tb_pos').innerHTML='特变 <span style="color:var(--red)">¥'+(d.holding.price||'18.66')+'</span>';}
+    if(d){paintStrategy(d);buildInstructions(d);if(d.briefing)paintBriefing(d.briefing);}
   }).catch(function(){});
 });
-
-setInterval(function(){
-  $('#clk').textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false});
-},10000);
 
 </script>
 </body>
